@@ -1,0 +1,167 @@
+{
+  "site": {
+    "name": "هاشور",
+    "nameLatin": "Hashor",
+    "tagline": "دقت، خط به خط.",
+    "shortDescription": "پوشاک مردانه با طراحی مینیمال و ساخت دقیق.",
+    "description": "هاشور یک فروشگاه پوشاک مردانه با رویکرد مینیمال است؛ لباس‌هایی با خطوط دقیق، پارچه‌های باکیفیت و طراحی ساده برای مردی که به جزئیات اهمیت می‌دهد.",
+    "url": "https://hashor.ir",
+    "locale": "fa-IR",
+    "keywords": [
+      "پوشاک مردانه",
+      "لباس مردانه",
+      "فروشگاه اینترنتی پوشاک",
+      "هاشور",
+      "پیراهن مردانه",
+      "شلوار مردانه"
+    ]
+  },
+  "theme": {
+    "colors": {
+      "primary": "#080808",
+      "secondary": "#1D1C1B",
+      "background": "#F2F1EC",
+      "surface": "#E3E1DB",
+      "text": "#171716",
+      "muted": "#898783",
+      "accent": "#584F48",
+      "accent2": "#4B5979",
+      "destructive": "#A13B2A"
+    },
+    "radius": "0.375rem"
+  },
+  "contact": {
+    "phone": "021-00000000",
+    "mobile": "0912-000-0000",
+    "email": "info@hashor.ir",
+    "address": "تهران، خیابان نمونه، پلاک ۰",
+    "workingHours": "شنبه تا پنج‌شنبه، ۹ تا ۱۸"
+  },
+  "social": {
+    "instagram": "https://instagram.com/hashor_sari",
+    "telegram": "https://t.me/hashor_sari",
+    "whatsapp": ""
+  },
+  "nav": {
+    "main": [
+      { "label": "خانه", "href": "/" },
+      { "label": "محصولات", "href": "/products" },
+      { "label": "درباره ما", "href": "/about" },
+      { "label": "تماس با ما", "href": "/contact" }
+    ],
+    "footerColumns": [
+      {
+        "title": "فروشگاه",
+        "links": [
+          { "label": "همه محصولات", "href": "/products" },
+          { "label": "تازه‌ترین‌ها", "href": "/products?sort=newest" },
+          { "label": "پرفروش‌ترین‌ها", "href": "/products?sort=bestseller" }
+        ]
+      },
+      {
+        "title": "راهنما",
+        "links": [
+          { "label": "پیگیری سفارش", "href": "/account/orders" },
+          { "label": "راهنمای سایز", "href": "/size-guide" },
+          { "label": "شرایط مرجوعی", "href": "/returns" },
+          { "label": "سوالات متداول", "href": "/faq" }
+        ]
+      },
+      {
+        "title": "درباره هاشور",
+        "links": [
+          { "label": "داستان برند", "href": "/about" },
+          { "label": "تماس با ما", "href": "/contact" },
+          { "label": "حریم خصوصی", "href": "/privacy" },
+          { "label": "قوانین و مقررات", "href": "/terms" }
+        ]
+      }
+    ]
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "مجموعه هاشور",
+      "headline": "دقت، خط به خط.",
+      "subheadline": "پوشاک مردانه با طراحی مینیمال؛ از انتخاب پارچه تا برش نهایی، هر مرحله با دقت اجرا می‌شود.",
+      "ctaPrimary": { "label": "مشاهده مجموعه", "href": "/products" },
+      "ctaSecondary": { "label": "داستان برند", "href": "/about" }
+    },
+    "valueProps": [
+      {
+        "title": "ارسال سریع",
+        "description": "ارسال به سراسر کشور، معمولاً ۲ تا ۴ روز کاری"
+      },
+      {
+        "title": "ضمانت اصالت",
+        "description": "پارچه و دوخت با استاندارد ثابت در هر سفارش"
+      },
+      {
+        "title": "۷ روز مهلت مرجوعی",
+        "description": "اگر اندازه یا حس پارچه مناسب نبود، برمی‌گردانید"
+      },
+      {
+        "title": "پرداخت امن",
+        "description": "درگاه بانکی معتبر، اطلاعات شما نزد ما محفوظ می‌ماند"
+      }
+    ],
+    "categoriesTitle": "دسته‌بندی‌ها",
+    "featuredTitle": "محصولات منتخب",
+    "featuredSubtitle": "چند تکه از تازه‌ترین مجموعه",
+    "philosophy": {
+      "eyebrow": "چرا هاشور",
+      "title": "هر جزئیات، یک خط حساب‌شده",
+      "body": "اسم هاشور از خطوط موازی و دقیقی می‌آید که در نقشه‌کشی برای نشان‌دادن سایه و جنس استفاده می‌شوند. همان نگاه را به طراحی لباس آورده‌ایم: بدون تزئین اضافه، با تمرکز روی برش، نسبت‌ها و پارچه."
+    },
+    "newsletter": {
+      "title": "از کلکسیون بعدی باخبر شوید",
+      "description": "ایمیل‌تان را بگذارید تا خبر مجموعه‌های جدید و تخفیف‌ها اول به دست شما برسد.",
+      "placeholder": "ایمیل شما",
+      "cta": "عضویت"
+    }
+  },
+  "categories": [
+    {
+      "slug": "shirts",
+      "title": "پیراهن",
+      "description": "پیراهن رسمی و کژوال"
+    },
+    {
+      "slug": "tshirts",
+      "title": "تی‌شرت و پولوشرت",
+      "description": "روزمره و راحت"
+    },
+    {
+      "slug": "pants",
+      "title": "شلوار",
+      "description": "کتان، پارچه‌ای و کژوال"
+    },
+    {
+      "slug": "outerwear",
+      "title": "کاپشن و ژاکت",
+      "description": "برای فصل سرد"
+    },
+    { "slug": "shoes", "title": "کفش", "description": "رسمی و روزمره" },
+    {
+      "slug": "accessories",
+      "title": "اکسسوری",
+      "description": "کمربند، کلاه، شال‌گردن"
+    }
+  ],
+  "ui": {
+    "addToCart": "افزودن به سبد خرید",
+    "outOfStock": "ناموجود",
+    "viewDetails": "مشاهده جزئیات",
+    "price": "قیمت",
+    "quantity": "تعداد",
+    "cart": "سبد خرید",
+    "checkout": "تسویه حساب",
+    "login": "ورود",
+    "account": "حساب کاربری",
+    "search": "جستجو در هاشور"
+  },
+  "seo": {
+    "defaultTitle": "هاشور | فروشگاه پوشاک مردانه",
+    "titleTemplate": "%s | هاشور",
+    "defaultDescription": "فروشگاه اینترنتی هاشور؛ پوشاک مردانه با طراحی مینیمال، پارچه باکیفیت و ارسال به سراسر ایران."
+  }
+}

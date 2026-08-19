@@ -1,0 +1,321 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// =====================================================================
+// AUTH — shaped to match Better Auth's Prisma adapter expectations.
+// When the auth phase is wired up, `npx @better-auth/cli generate` will
+// diff this against the real config and add anything missing.
+// =====================================================================
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  name               String
+  email              String   @unique
+  emailVerified      Boolean  @default(false)
+  phoneNumber        String?  @unique
+  phoneNumberVerified Boolean @default(false)
+  image              String?
+  role               Role     @default(CUSTOMER)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  sessions  Session[]
+  accounts  Account[]
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+// Credential (email+password) and future OAuth accounts both live here,
+// matching Better Auth's convention — providerId "credential" for the
+// email/password flow.
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+// OTP codes (email or SMS) and other short-lived verification tokens.
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// =====================================================================
+// CATALOG
+// =====================================================================
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?
+  image       String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@map("category")
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  description     String
+  price           Int
+  compareAtPrice  Int?
+  sku             String?  @unique
+  categoryId      String
+  isPublished     Boolean  @default(true)
+  isFeatured      Boolean  @default(false)
+  isNew           Boolean  @default(false)
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category   Category         @relation(fields: [categoryId], references: [id])
+  images     ProductImage[]
+  variants   ProductVariant[]
+  reviews    Review[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@map("product")
+}
+
+// Left empty until real photography is uploaded through the admin panel —
+// the storefront falls back to the on-brand placeholder graphic when a
+// product has no images.
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_image")
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  sizeId    String?
+  color     String?
+  colorHex  String?
+  stock     Int     @default(0)
+  sku       String? @unique
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size       Size?       @relation(fields: [sizeId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("product_variant")
+}
+
+// Sizes are store-wide and admin-managed (see /admin/sizes) — created once,
+// then reusable across any future product, since different garment types
+// need different size sets (S/M/L for shirts, 38-46 for shoes, etc).
+model Size {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  variants ProductVariant[]
+
+  @@map("size")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  userId     String
+  rating     Int
+  comment    String?
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("review")
+}
+
+// =====================================================================
+// ORDERS & CHECKOUT
+// =====================================================================
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  fullName    String
+  phone       String
+  province    String
+  city        String
+  addressLine String
+  postalCode  String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("address")
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// paymentRef / gateway fields stay generic on purpose — this is the seam
+// where the real payment gateway plugs in later (see lib/payment/).
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  userId         String
+  addressId      String
+  status         OrderStatus @default(PENDING_PAYMENT)
+  subtotal       Int
+  discountAmount Int         @default(0)
+  shippingCost   Int         @default(0)
+  total          Int
+  discountCodeId String?
+  gatewayRef     String?
+  paidAt         DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  address      Address       @relation(fields: [addressId], references: [id])
+  discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  items        OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  variantId String?
+  name      String
+  size      String?
+  price     Int
+  quantity  Int
+
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("order_item")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model DiscountCode {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  type          DiscountType
+  value         Int
+  maxUses       Int?
+  usedCount     Int          @default(0)
+  minOrderTotal Int?
+  expiresAt     DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  orders Order[]
+
+  @@map("discount_code")
+}
+
+// =====================================================================
+// SITE OPERATIONAL SETTINGS — admin-toggleable, distinct from the
+// developer-facing content/site-config.json (see lib/content.ts).
+// =====================================================================
+
+model SiteSetting {
+  id                    String   @id @default("singleton")
+  emailLoginEnabled     Boolean  @default(true)
+  smsLoginEnabled       Boolean  @default(true)
+  freeShippingThreshold Int?
+  standardShippingCost  Int      @default(0)
+  updatedAt             DateTime @updatedAt
+
+  @@map("site_setting")
+}
+
+// Multiple hero images so the homepage banner can rotate — admin-managed
+// from /admin/settings, independent of any single product or category.
+model HeroImage {
+  id        String   @id @default(cuid())
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("hero_image")
+}
