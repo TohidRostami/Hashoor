@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toPersianDigits } from "@/lib/format";
 
 const PER_PAGE_OPTIONS = [4, 8, 10, 25, 50, 100];
 const DEFAULT_PER_PAGE = 10;
@@ -41,14 +42,19 @@ export function AdminProductsPerPageSelect({ value }: { value: number }) {
         <SelectTrigger
           size="sm"
           aria-label="تعداد محصول در صفحه"
-          className="w-20"
+          className="w-20 text-right text-xs"
+          dir="rtl"
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {PER_PAGE_OPTIONS.map((n) => (
-            <SelectItem key={n} value={String(n)}>
-              <span className="font-gowun-batang">{n}</span>
+            <SelectItem
+              key={n}
+              value={String(n)}
+              className="justify-end text-right text-xs"
+            >
+              <span className="font-gowun-batang">{toPersianDigits(n)}</span>
             </SelectItem>
           ))}
         </SelectContent>

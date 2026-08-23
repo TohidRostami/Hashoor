@@ -46,6 +46,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.arvanstorage.com" },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
+  },
 };
 
 export default nextConfig;

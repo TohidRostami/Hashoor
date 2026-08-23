@@ -11,7 +11,7 @@ export type SettingsInput = {
   smsLoginEnabled: boolean;
   standardShippingCost: number;
   freeShippingThreshold: number | null;
-  heroImages: string[];
+  heroImages: { url: string; isActive: boolean }[];
 };
 
 export async function updateSiteSettings(input: SettingsInput) {
@@ -40,9 +40,9 @@ export async function updateSiteSettings(input: SettingsInput) {
 
   // Sync hero images the same way product images are synced: delete
   // whatever's no longer in the list (including from Object Storage),
-  // then recreate rows in the submitted order.
+  // then recreate rows in the submitted order, with each one's isActive.
   const existingImages = (await prisma.heroImage.findMany({})) as { url: string }[];
-  const keep = new Set(input.heroImages);
+  const keep = new Set(input.heroImages.map((i) => i.url));
   for (const img of existingImages) {
     if (!keep.has(img.url)) {
       const key = keyFromUrl(img.url);
@@ -50,8 +50,10 @@ export async function updateSiteSettings(input: SettingsInput) {
     }
   }
   await prisma.heroImage.deleteMany({});
-  for (const [i, url] of input.heroImages.entries()) {
-    await prisma.heroImage.create({ data: { url, sortOrder: i } });
+  for (const [i, image] of input.heroImages.entries()) {
+    await prisma.heroImage.create({
+      data: { url: image.url, isActive: image.isActive, sortOrder: i },
+    });
   }
 
   revalidatePath("/admin/settings");

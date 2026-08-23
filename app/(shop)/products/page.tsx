@@ -14,6 +14,7 @@ import {
 } from "@/lib/queries/products";
 import { buildProductsHref } from "@/lib/product-filters";
 import { cn } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/format";
 
 export const metadata: Metadata = { title: "محصولات" };
 
@@ -70,7 +71,7 @@ export default async function ProductsPage({
       <header className="mb-8">
         <h1 className="text-2xl font-bold sm:text-3xl">{pageTitle}</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          <span className="font-nums">{totalCount}</span> محصول
+          <span className="font-gowun-batang">{toPersianDigits(totalCount)}</span> محصول
         </p>
       </header>
 

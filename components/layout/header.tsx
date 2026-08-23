@@ -31,7 +31,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-backdrop-blur:bg-background/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 sm:px-6 lg:px-8">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button
@@ -51,7 +51,7 @@ export function SiteHeader() {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="shrink-0" aria-label={siteConfig.site.name}>
+        <Link href="/" className="shrink-0 mr-9 sm:m-0" aria-label={siteConfig.site.name}>
           <Logo />
         </Link>
 
@@ -101,12 +101,12 @@ export function SiteHeader() {
             size="icon"
             aria-label={siteConfig.ui.cart}
             asChild
-            className="hidden sm:flex"
+            className="flex"
           >
-            <Link href="/cart">
+            <Link href="/cart" className="relative">
               <ShoppingBag />
               {mounted && cartCount > 0 && (
-                <span className="font-nums absolute -top-1 -end-1 flex size-4 items-center justify-center rounded-full bg-accent-2 text-[10px] text-accent-2-foreground">
+                <span className="font-gowun-batang absolute top-2 right-1 flex size-4 items-center justify-center rounded-full bg-dark-blue text-[10px] text-accent-2-foreground">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}

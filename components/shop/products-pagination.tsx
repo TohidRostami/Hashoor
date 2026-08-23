@@ -2,11 +2,14 @@ import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { buildProductsHref } from "@/lib/product-filters";
 import { cn } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/format";
 
 /** Builds a compact page list with ellipses, e.g. 1 … 4 5 [6] 7 8 … 20 */
 function getPageList(current: number, total: number): (number | "gap")[] {
   const pages = new Set<number>([1, total, current, current - 1, current + 1]);
-  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const sorted = [...pages]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
 
   const result: (number | "gap")[] = [];
   for (let i = 0; i < sorted.length; i++) {
@@ -29,7 +32,9 @@ export function ProductsPagination({
 
   const pages = getPageList(currentPage, totalPages);
   const hrefFor = (page: number) =>
-    buildProductsHref(currentParams, { page: page === 1 ? undefined : String(page) });
+    buildProductsHref(currentParams, {
+      page: page === 1 ? undefined : String(page),
+    });
 
   return (
     <nav
@@ -46,14 +51,17 @@ export function ProductsPagination({
 
       {pages.map((p, i) =>
         p === "gap" ? (
-          <span key={`gap-${i}`} className="px-1.5 text-sm text-muted-foreground">
+          <span
+            key={`gap-${i}`}
+            className="px-1.5 text-sm text-muted-foreground"
+          >
             …
           </span>
         ) : (
           <PageLink key={p} href={hrefFor(p)} active={p === currentPage}>
-            <span className="font-nums">{p}</span>
+            <span className="font-gowun-batang">{toPersianDigits(p)}</span>
           </PageLink>
-        )
+        ),
       )}
 
       <PageLink
@@ -93,7 +101,7 @@ function PageLink({
         "flex size-9 items-center justify-center rounded-md text-sm transition-colors",
         active
           ? "bg-foreground text-background"
-          : "text-foreground/80 hover:bg-secondary hover:text-foreground"
+          : "text-foreground/80 hover:bg-secondary hover:text-foreground",
       )}
       {...props}
     >

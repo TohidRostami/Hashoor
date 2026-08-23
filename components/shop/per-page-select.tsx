@@ -1,33 +1,54 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { buildProductsHref } from "@/lib/product-filters";
 import { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "@/lib/product-constants";
+import { toPersianDigits } from "@/lib/format";
 
 export function PerPageSelect({ value }: { value: number }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   function handleChange(next: string) {
-    const href = buildProductsHref(new URLSearchParams(searchParams.toString()), {
-      perPage: Number(next) === DEFAULT_PER_PAGE ? undefined : next,
-      page: undefined,
-    });
+    const href = buildProductsHref(
+      new URLSearchParams(searchParams.toString()),
+      {
+        perPage: Number(next) === DEFAULT_PER_PAGE ? undefined : next,
+        page: undefined,
+      },
+    );
     router.push(href);
   }
 
   return (
     <div className="flex items-center gap-2.5">
-      <span className="shrink-0 text-sm text-muted-foreground">تعداد در صفحه:</span>
+      <span className="shrink-0 text-sm text-muted-foreground">
+        تعداد در صفحه:
+      </span>
       <Select value={String(value)} onValueChange={handleChange}>
-        <SelectTrigger size="sm" aria-label="تعداد محصول در صفحه" className="w-20">
+        <SelectTrigger
+          size="sm"
+          aria-label="تعداد محصول در صفحه"
+          className="w-20 text-right text-xs"
+          dir="rtl"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {PER_PAGE_OPTIONS.map((n) => (
-            <SelectItem key={n} value={String(n)}>
-              <span className="font-nums">{n}</span>
+            <SelectItem
+              key={n}
+              value={String(n)}
+              className="justify-end text-right text-xs"
+            >
+              <span className="font-gowun-batang">{toPersianDigits(n)}</span>
             </SelectItem>
           ))}
         </SelectContent>

@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { MultiImageUploader } from "@/components/admin/multi-image-uploader";
+import {
+  HeroImagesManager,
+  type HeroImageItem,
+} from "@/components/admin/hero-images-manager";
 import type { SiteSettings } from "@/lib/queries/settings";
 import type { HeroImageDTO } from "@/lib/queries/hero-images";
 import {
@@ -36,8 +39,8 @@ export function SettingsForm({
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(
     settings.freeShippingThreshold?.toString() ?? "",
   );
-  const [heroImages, setHeroImages] = useState<string[]>(
-    initialHeroImages.map((i) => i.url),
+  const [heroImages, setHeroImages] = useState<HeroImageItem[]>(
+    initialHeroImages.map((i) => ({ url: i.url, isActive: i.isActive })),
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,10 +76,12 @@ export function SettingsForm({
           <h2 className="text-sm font-medium">تصاویر هیرو (صفحه اصلی)</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             اگر چند عکس اضافه کنید، در صفحه اصلی به‌صورت اسلایدشو نمایش داده
-            می‌شوند. اگر هیچ عکسی نباشد، طرح انیمیشنی پیش‌فرض نمایش داده می‌شود.
+            می‌شوند. عکس‌های غیرفعال در فروشگاه نمایش داده نمی‌شوند اما حذف
+            نمی‌شوند. اگر هیچ عکس فعالی نباشد، طرح انیمیشنی پیش‌فرض نمایش داده
+            می‌شود.
           </p>
         </div>
-        <MultiImageUploader
+        <HeroImagesManager
           images={heroImages}
           onChange={setHeroImages}
           uploadAction={uploadHeroImage}

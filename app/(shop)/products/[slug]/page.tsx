@@ -12,6 +12,7 @@ import { Reveal } from "@/components/shared/reveal";
 import { getProductBySlug, getRelatedProducts } from "@/lib/queries/products";
 import { formatPrice } from "@/lib/format";
 import { siteConfig } from "@/lib/content";
+import { ProductGallery } from "@/components/shop/product-gallery";
 
 const KNOWN_VARIANTS: GarmentVariant[] = [
   "shirts",
@@ -23,7 +24,9 @@ const KNOWN_VARIANTS: GarmentVariant[] = [
 ];
 
 function toGarmentVariant(slug: string): GarmentVariant {
-  return (KNOWN_VARIANTS as string[]).includes(slug) ? (slug as GarmentVariant) : "shirts";
+  return (KNOWN_VARIANTS as string[]).includes(slug)
+    ? (slug as GarmentVariant)
+    : "shirts";
 }
 
 type Props = { params: Promise<{ slug: string }> };
@@ -32,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
-
+  console.log(product);
   return {
     title: product.metaTitle ?? product.name,
     description: product.metaDescription ?? product.description.slice(0, 160),
@@ -51,7 +54,8 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const related = await getRelatedProducts(product.id, product.category.id, 4);
   const image = product.images[0];
-  const inStock = product.variants.length === 0 || product.variants.some((v) => v.stock > 0);
+  const inStock =
+    product.variants.length === 0 || product.variants.some((v) => v.stock > 0);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -82,7 +86,10 @@ export default async function ProductDetailPage({ params }: Props) {
           خانه
         </Link>
         <ChevronLeft className="size-3.5 rotate-180" />
-        <Link href={`/products?category=${product.category.slug}`} className="transition-colors hover:text-foreground">
+        <Link
+          href={`/products?category=${product.category.slug}`}
+          className="transition-colors hover:text-foreground"
+        >
           {product.category.title}
         </Link>
         <ChevronLeft className="size-3.5 rotate-180" />
@@ -90,26 +97,27 @@ export default async function ProductDetailPage({ params }: Props) {
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-hidden">
           {image ? (
-            <div className="relative aspect-4/5 w-full">
-              <Image
-                src={image.url}
-                alt={image.alt ?? product.name}
-                fill
-                loading="lazy"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
-            </div>
+            <ProductGallery
+              images={product.images}
+              productName={product.name}
+              categorySlug={product.category.slug}
+            />
           ) : (
-            <ProductPlaceholder variant={toGarmentVariant(product.category.slug)} />
+            <ProductPlaceholder
+              variant={toGarmentVariant(product.category.slug)}
+            />
           )}
         </div>
 
         <div className="flex flex-col lg:py-4">
-          <p className="text-sm text-muted-foreground">{product.category.title}</p>
-          <h1 className="mt-1.5 text-2xl font-bold sm:text-3xl">{product.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            {product.category.title}
+          </p>
+          <h1 className="mt-1.5 text-2xl font-bold sm:text-3xl">
+            {product.name}
+          </h1>
 
           <div className="mt-4 flex items-baseline gap-2.5">
             {product.compareAtPrice && (

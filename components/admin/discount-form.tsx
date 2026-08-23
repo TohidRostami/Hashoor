@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { JalaliDatePicker } from "@/components/ui/jalali-date-picker";
 import type { DiscountCodeRow } from "@/lib/queries/admin-discounts";
 import {
   createDiscountCode,
@@ -140,13 +141,7 @@ export function DiscountForm({ discount }: { discount?: DiscountCodeRow }) {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="expiresAt">تاریخ انقضا (اختیاری)</Label>
-        <Input
-          id="expiresAt"
-          type="date"
-          dir="ltr"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-        />
+        <JalaliDatePicker value={expiresAt} onChange={setExpiresAt} />
       </div>
 
       <div className="flex items-center justify-between gap-3">

@@ -44,6 +44,11 @@ export async function placeOrder(
     price: number;
     quantity: number;
   }[] = [];
+  // Only items that resolved to a *real* ProductVariant get stock
+  // reserved — a product with no variants sends its own id as a
+  // placeholder variantId (see add-to-cart-form.tsx), and has no
+  // per-variant stock to track.
+  const stockReservations: { variantId: string; quantity: number; name: string }[] = [];
 
   for (const item of items) {
     const product = (await prisma.product.findUnique({
@@ -62,6 +67,9 @@ export async function placeOrder(
     }
 
     const variant = product.variants.find((v) => v.id === item.variantId);
+    if (variant) {
+      stockReservations.push({ variantId: variant.id, quantity: item.quantity, name: product.name });
+    }
 
     subtotal += product.price * item.quantity;
     orderItemsData.push({
@@ -72,6 +80,37 @@ export async function placeOrder(
       price: product.price,
       quantity: item.quantity,
     });
+  }
+
+  // Reserve stock for every variant item in one all-or-nothing
+  // transaction: each decrement is guarded by `version`, so if another
+  // checkout modifies the same variant in between our read and write,
+  // this throws and the whole transaction (every item, not just one)
+  // rolls back — nothing is oversold, and nothing is left half-reserved.
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const reservation of stockReservations) {
+        const variant = await tx.productVariant.findUnique({ where: { id: reservation.variantId } });
+        if (!variant) {
+          throw new Error(`یکی از اقلام سبد خرید («${reservation.name}») دیگر در دسترس نیست.`);
+        }
+        if (variant.stock < reservation.quantity) {
+          throw new Error(`موجودی «${reservation.name}» کافی نیست.`);
+        }
+
+        const updated = await tx.productVariant.updateMany({
+          where: { id: reservation.variantId, version: variant.version },
+          data: { stock: { decrement: reservation.quantity }, version: { increment: 1 } },
+        });
+        if (updated.count === 0) {
+          throw new Error(
+            `موجودی «${reservation.name}» هم‌زمان توسط سفارش دیگری تغییر کرد — لطفاً دوباره تلاش کنید.`
+          );
+        }
+      }
+    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "خطا در بررسی موجودی." };
   }
 
   const settings = await getSiteSettings();
@@ -124,6 +163,21 @@ export async function completeSimulatedPayment(
       data: { status: "PAID", paidAt: new Date(), gatewayRef: `SIM-${Date.now()}` },
     });
     return `/checkout/result?order=${orderId}&status=success`;
+  }
+
+  // Payment failed — release the stock that was reserved for this order
+  // so it doesn't stay locked away from other customers.
+  const items = (await prisma.orderItem.findMany({ where: { orderId } })) as {
+    variantId: string | null;
+    quantity: number;
+  }[];
+  for (const item of items) {
+    if (item.variantId) {
+      await prisma.productVariant.update({
+        where: { id: item.variantId },
+        data: { stock: { increment: item.quantity }, version: { increment: 1 } },
+      });
+    }
   }
 
   await prisma.order.update({

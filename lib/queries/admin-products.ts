@@ -35,6 +35,10 @@ export async function getAllProductsForAdmin(
   // Built once and reused for both findMany and count, so the total (and
   // therefore totalPages) always matches exactly what's being paginated.
   const where = {
+    // Archived products (see deleteProduct) are hidden from the default
+    // list — they're kept only for order-history integrity, not for
+    // ongoing management.
+    isArchived: false,
     ...(search
       ? {
           // No `mode: "insensitive"` — that's a Postgres/MongoDB-only
