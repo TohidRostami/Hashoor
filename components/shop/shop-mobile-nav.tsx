@@ -32,9 +32,9 @@ export function ShopMobileNav({
   role: string;
 }) {
   const pathname = usePathname();
-  console.log(role);
+  
   return (
-    <div className="flex h-full flex-col text-sidebar-foreground">
+    <div className="flex h-full flex-col text-sidebar-foreground px-2">
       <div className="flex items-center justify-between px-5 py-5">
         <Link href="/admin" className="[&_span]:text-sidebar-foreground">
           <Logo />

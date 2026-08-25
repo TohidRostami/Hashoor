@@ -15,7 +15,7 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-bold">کاربران</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          <span className="font-gowun-batang">{users.length}</span> کاربر
+          <span className="">{users.length}</span> کاربر
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export default async function AdminUsersPage() {
               return (
                 <TableRow key={u.id}>
                   <TableCell className="text-center font-medium">{u.name}</TableCell>
-                  <TableCell className="text-center font-gowun-batang text-muted-foreground" dir="ltr">
+                  <TableCell className="text-center  text-muted-foreground" dir="ltr">
                     {isPlaceholderEmail ? u.phoneNumber ?? "—" : u.email}
                   </TableCell>
                   <TableCell className="text-center">

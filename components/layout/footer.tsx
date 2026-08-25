@@ -4,6 +4,7 @@ import { FaInstagram, FaTelegram } from 'react-icons/fa'
 import { Logo, WhiteLogo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/content";
+import { toPersianDigits } from "@/lib/format";
 
 const trustItems = [
   { icon: Truck, label: "ارسال به سراسر ایران" },
@@ -61,7 +62,7 @@ export function SiteFooter() {
 
         <div className="flex flex-col-reverse items-center justify-between gap-4 py-6 text-xs text-white sm:flex-row">
           <p className="text-start">
-            © <span className="font-gowun-batang">{new Date().getFullYear()}</span>{" "}
+            © <span>{toPersianDigits(new Date().getFullYear())}</span>{" "}
             {siteConfig.site.nameLatin}. تمام حقوق محفوظ است.
           </p>
           <p className="font-nums" dir="ltr">

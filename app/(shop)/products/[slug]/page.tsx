@@ -121,11 +121,11 @@ export default async function ProductDetailPage({ params }: Props) {
 
           <div className="mt-4 flex items-baseline gap-2.5">
             {product.compareAtPrice && (
-              <span className="font-gowun-batang text-base text-muted-foreground line-through">
+              <span className="text-base text-muted-foreground line-through">
                 {formatPrice(product.compareAtPrice)}
               </span>
             )}
-            <span className="font-gowun-batang text-xl font-medium text-foreground">
+            <span className="text-xl font-medium text-foreground">
               {formatPrice(product.price)}
             </span>
             <span className="text-sm text-muted-foreground">تومان</span>

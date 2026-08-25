@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { ProductPlaceholder } from "@/components/shared/product-placeholder";
 import type { GarmentVariant } from "@/components/shared/garment-glyph";
 import { useCartStore } from "@/lib/store/cart";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, toPersianDigits } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const KNOWN_VARIANTS: GarmentVariant[] = [
   "shirts",
@@ -29,6 +30,7 @@ export default function CartPage() {
   useEffect(() => setMounted(true), []);
 
   const items = useCartStore((s) => s.items);
+  console.log(items)
   const setQuantity = useCartStore((s) => s.setQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
 
@@ -63,9 +65,16 @@ export default function CartPage() {
             <li key={item.variantId} className="flex gap-4 py-5">
               <Link
                 href={`/products/${item.slug}`}
-                className="w-24 shrink-0 overflow-hidden rounded-md border border-border sm:w-28"
+                className="relative block h-24 w-24 shrink-0 overflow-hidden rounded-md border border-border sm:h-28 sm:w-28"
               >
-                <ProductPlaceholder variant={toGarmentVariant(item.categorySlug)} />
+                <Image
+                  src={item.image as string}
+                  alt={item.name}
+                  fill
+                  loading="lazy"
+                  sizes="(min-width: 640px) 112px, 96px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </Link>
 
               <div className="flex flex-1 flex-col justify-between">
@@ -101,7 +110,7 @@ export default function CartPage() {
                     >
                       <Minus className="size-3.5" />
                     </button>
-                    <span className="font-nums w-8 text-center text-sm">{item.quantity}</span>
+                    <span className=" w-8 text-center text-sm">{toPersianDigits(item.quantity)}</span>
                     <button
                       type="button"
                       onClick={() => setQuantity(item.variantId, item.quantity + 1)}
@@ -112,7 +121,7 @@ export default function CartPage() {
                     </button>
                   </div>
                   <span className="text-sm">
-                    <span className="font-nums font-medium">
+                    <span className=" font-medium">
                       {formatPrice(item.price * item.quantity)}
                     </span>
                     <span className="mr-1 text-xs text-muted-foreground">تومان</span>
@@ -135,7 +144,7 @@ export default function CartPage() {
             <div className="flex justify-between text-muted-foreground">
               <span>جمع جزء</span>
               <span>
-                <span className="font-nums text-foreground">{formatPrice(subtotal)}</span>
+                <span className=" text-foreground">{formatPrice(subtotal)}</span>
                 <span> تومان</span>
               </span>
             </div>
@@ -148,7 +157,7 @@ export default function CartPage() {
           <div className="mt-5 flex justify-between border-t border-border pt-5 text-base font-medium">
             <span>مبلغ قابل پرداخت</span>
             <span>
-              <span className="font-nums">{formatPrice(subtotal)}</span>
+              <span className="">{formatPrice(subtotal)}</span>
               <span> تومان</span>
             </span>
           </div>

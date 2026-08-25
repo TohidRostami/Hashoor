@@ -14,6 +14,7 @@ import {
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button";
 import { getAllSizes } from "@/lib/queries/admin-sizes";
 import { deleteSize } from "@/app/admin/sizes/actions";
+import { toPersianDigits } from "@/lib/format";
 
 export const metadata: Metadata = { title: "سایزها | پنل مدیریت" };
 
@@ -26,7 +27,7 @@ export default async function AdminSizesPage() {
         <div>
           <h1 className="text-2xl font-bold">سایزها</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-nums">{sizes.length}</span> سایز — مشترک بین
+            <span>{toPersianDigits(sizes.length)}</span> سایز — مشترک بین
             همه محصولات
           </p>
         </div>
@@ -57,14 +58,14 @@ export default async function AdminSizesPage() {
             <TableBody>
               {sizes.map((s) => (
                 <TableRow key={s.id}>
-                  <TableCell className="text-center font-gowun-batang font-medium">
+                  <TableCell className="text-center  font-medium">
                     {s.name}
                   </TableCell>
                   <TableCell className="text-center text-muted-foreground">
                     {s.description ?? "—"}
                   </TableCell>
-                  <TableCell className="text-center font-gowun-batang text-muted-foreground">
-                    {s.sortOrder}
+                  <TableCell className="text-center  text-muted-foreground">
+                    {toPersianDigits(s.sortOrder)}
                   </TableCell>
                   <TableCell className="pe-6">
                     <div className="flex justify-center gap-1">

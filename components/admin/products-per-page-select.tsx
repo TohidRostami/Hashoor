@@ -54,7 +54,7 @@ export function AdminProductsPerPageSelect({ value }: { value: number }) {
               value={String(n)}
               className="justify-end text-right text-xs"
             >
-              <span className="font-gowun-batang">{toPersianDigits(n)}</span>
+              <span className="">{toPersianDigits(n)}</span>
             </SelectItem>
           ))}
         </SelectContent>

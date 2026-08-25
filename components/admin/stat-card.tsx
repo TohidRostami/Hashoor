@@ -1,3 +1,4 @@
+import { toPersianDigits } from "@/lib/format";
 import type { LucideIcon } from "lucide-react";
 
 export function StatCard({
@@ -18,7 +19,7 @@ export function StatCard({
         <Icon className="size-4 text-muted-foreground" strokeWidth={1.6} />
       </div>
       <p className="flex flex-col mt-2 text-2xl font-bold">
-        <span className="font-gowun-batang">{value}</span>
+        <span className="">{toPersianDigits(value)}</span>
         {unit && <span className="mr-1 text-xs font-normal text-muted-foreground">{unit}</span>}
       </p>
     </div>

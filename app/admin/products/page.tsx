@@ -19,7 +19,7 @@ import { AdminProductsPagination } from "@/components/admin/products-pagination"
 
 import { getAllProductsForAdmin } from "@/lib/queries/admin-products";
 import { getCategories } from "@/lib/queries/products";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, toPersianDigits } from "@/lib/format";
 import { AdminProductsPerPageSelect } from "@/components/admin/products-per-page-select";
 
 export const metadata: Metadata = {
@@ -84,8 +84,8 @@ export default async function AdminProductsPage({
         <div>
           <h1 className="text-2xl font-bold">محصولات</h1>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-nums">{totalCount}</span> محصول
+          <p className="text-sans mt-1 text-sm text-muted-foreground">
+            <span>{toPersianDigits(totalCount)}</span> محصول
           </p>
         </div>
 
@@ -141,7 +141,7 @@ export default async function AdminProductsPage({
                     {p.category.title}
                   </TableCell>
 
-                  <TableCell className="font-gowun-batang text-center">
+                  <TableCell className=" text-center">
                     {formatPrice(p.price)}
                   </TableCell>
 

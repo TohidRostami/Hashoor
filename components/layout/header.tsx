@@ -31,14 +31,14 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-backdrop-blur:bg-background/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-2 sm:px-6 lg:px-8">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
               aria-label="باز کردن منو"
-              className="md:hidden"
+              className="md:hidden pr-2"
             >
               <Menu />
             </Button>
@@ -106,7 +106,7 @@ export function SiteHeader() {
             <Link href="/cart" className="relative">
               <ShoppingBag />
               {mounted && cartCount > 0 && (
-                <span className="font-gowun-batang absolute top-2 right-1 flex size-4 items-center justify-center rounded-full bg-dark-blue text-[10px] text-accent-2-foreground">
+                <span className=" absolute top-2 right-1 flex size-4 items-center justify-center rounded-full bg-dark-blue text-[10px] text-accent-2-foreground">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}

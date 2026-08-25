@@ -41,7 +41,7 @@ export default async function AdminOrdersPage() {
               {orders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="text-center">
-                    <span className="font-gowun-batang">{order.orderNumber}</span>
+                    <span className="">{order.orderNumber}</span>
                   </TableCell>
                   <TableCell className="text-center text-muted-foreground">
                     {order.customer?.name ?? "—"}
@@ -51,7 +51,7 @@ export default async function AdminOrdersPage() {
                       {ORDER_STATUS_LABELS[order.status] ?? order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center font-gowun-batang">{formatPrice(order.total)}</TableCell>
+                  <TableCell className="text-center ">{formatPrice(order.total)}</TableCell>
                   <TableCell className="pe-6 text-center">
                     <Link
                       href={`/admin/orders/${order.id}`}

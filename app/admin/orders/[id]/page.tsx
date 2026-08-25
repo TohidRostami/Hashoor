@@ -22,7 +22,7 @@ export default async function AdminOrderDetailPage({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">
-            <span className="font-gowun-batang">{order.orderNumber}</span>
+            <span className="">{order.orderNumber}</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{formatJalali(order.createdAt)}</p>
         </div>
@@ -38,24 +38,24 @@ export default async function AdminOrderDetailPage({
                 <span>
                   {item.name}
                   {item.size && ` (${item.size})`}
-                  <span className="font-gowun-batang text-muted-foreground"> × {item.quantity}</span>
+                  <span className=" text-muted-foreground"> × {item.quantity}</span>
                 </span>
-                <span className="font-gowun-batang">{formatPrice(item.price * item.quantity)}</span>
+                <span className="">{formatPrice(item.price * item.quantity)}</span>
               </li>
             ))}
           </ul>
           <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-sm">
             <div className="flex justify-between text-muted-foreground">
               <span>جمع جزء</span>
-              <span className="font-gowun-batang">{formatPrice(order.subtotal)}</span>
+              <span className="">{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>هزینه ارسال</span>
-              <span className="font-gowun-batang">{formatPrice(order.shippingCost)}</span>
+              <span className="">{formatPrice(order.shippingCost)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 text-base font-medium">
               <span>مجموع</span>
-              <span className="font-gowun-batang">{formatPrice(order.total)} تومان</span>
+              <span className="">{formatPrice(order.total)} تومان</span>
             </div>
           </div>
         </div>
@@ -75,16 +75,16 @@ export default async function AdminOrderDetailPage({
             <h2 className="text-sm font-medium">آدرس تحویل</h2>
             {order.address ? (
               <div className="mt-3 flex flex-col gap-1 text-sm text-muted-foreground">
-                <span className="text-foreground">{order.address.fullName}</span>
-                <span className="font-gowun-batang" dir="ltr">
-                  {order.address.phone}
+                <span className="text-foreground">نام و نام خانوادگی: {order.address.fullName}</span>
+                <span className="text-right" dir="ltr">
+                  شماره تماس: {order.address.phone}
                 </span>
                 <span>
-                  {order.address.province}، {order.address.city}
+                  استان و شهر: {order.address.province}، {order.address.city}
                 </span>
-                <span>{order.address.addressLine}</span>
+                <span>آدرس: {order.address.addressLine}</span>
                 <span>
-                  کد پستی: <span className="font-gowun-batang">{order.address.postalCode}</span>
+                  کد پستی: <span className="">{order.address.postalCode}</span>
                 </span>
               </div>
             ) : (

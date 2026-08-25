@@ -8,7 +8,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button";
 import { getAllDiscountCodes } from "@/lib/queries/admin-discounts";
 import { deleteDiscountCode } from "@/app/admin/discounts/actions";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, toPersianDigits } from "@/lib/format";
 
 export const metadata: Metadata = { title: "کدهای تخفیف | پنل مدیریت" };
 
@@ -21,7 +21,7 @@ export default async function AdminDiscountsPage() {
         <div>
           <h1 className="text-2xl font-bold">کدهای تخفیف</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-gowun-batang">{codes.length}</span> کد
+            <span className="">{codes.length}</span> کد
           </p>
         </div>
         <Button asChild>
@@ -51,13 +51,13 @@ export default async function AdminDiscountsPage() {
             <TableBody>
               {codes.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="text-center font-gowun-batang font-medium">{c.code}</TableCell>
-                  <TableCell className="text-center font-gowun-batang text-muted-foreground">
-                    {c.type === "PERCENTAGE" ? `${c.value}٪` : `${formatPrice(c.value)} تومان`}
+                  <TableCell className="text-center  font-medium">{c.code}</TableCell>
+                  <TableCell className="text-center  text-muted-foreground">
+                    {c.type === "PERCENTAGE" ? `${toPersianDigits(c.value)}٪` : `${formatPrice(c.value)} تومان`}
                   </TableCell>
-                  <TableCell className="text-center font-gowun-batang text-muted-foreground">
-                    {c.usedCount}
-                    {c.maxUses ? ` / ${c.maxUses}` : ""}
+                  <TableCell className="text-center  text-muted-foreground">
+                    {toPersianDigits(c.usedCount)}
+                    {c.maxUses ? ` / ${toPersianDigits(c.maxUses)}` : ""}
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant={c.isActive ? "default" : "outline"}>

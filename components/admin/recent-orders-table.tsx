@@ -48,7 +48,7 @@ export function RecentOrdersTable({ orders }: { orders: Row[] }) {
                 {ORDER_STATUS_LABELS[order.status] ?? order.status}
               </Badge>
             </TableCell>
-            <TableCell className="text-center font-nums">{formatPrice(order.total)}</TableCell>
+            <TableCell className="text-center p-2">{formatPrice(order.total)}</TableCell>
           </TableRow>
         ))}
       </TableBody>

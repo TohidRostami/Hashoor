@@ -59,9 +59,9 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
       />
 
       {/* HatchField */}
-      <div className="pointer-events-none absolute inset-0 z-[3] text-accent/70">
+      {/* <div className="pointer-events-none absolute inset-0 z-[3] text-accent/70">
         <HatchField />
-      </div>
+      </div> */}
 
       {/* Fixed Content */}
       <div className="relative z-10 mx-auto flex min-h-[79vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
@@ -108,10 +108,10 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
         </motion.div>
       </div>
 
-      {/* Bottom Strip */}
+      {/* Bottom Strip
       <div className="relative z-10 mx-auto max-w-7xl">
         <RulerStrip className="border-t border-border/70 text-muted-foreground" />
-      </div>
+      </div> */}
     </section>
   );
 }

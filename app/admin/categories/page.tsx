@@ -14,6 +14,7 @@ import {
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button";
 import { getAllCategories } from "@/lib/queries/admin-products";
 import { deleteCategory } from "@/app/admin/categories/actions";
+import { toPersianDigits } from "@/lib/format";
 
 export const metadata: Metadata = { title: "دسته‌بندی‌ها | پنل مدیریت" };
 
@@ -26,7 +27,7 @@ export default async function AdminCategoriesPage() {
         <div>
           <h1 className="text-2xl font-bold">دسته‌بندی‌ها</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-nums">{categories.length}</span> دسته‌بندی
+            <span>{toPersianDigits(categories.length)}</span> دسته‌بندی
           </p>
         </div>
         <div>
@@ -60,8 +61,8 @@ export default async function AdminCategoriesPage() {
                 >
                   {c.slug}
                 </TableCell>
-                <TableCell className="text-center font-gowun-batang text-muted-foreground">
-                  {c.sortOrder}
+                <TableCell className="text-center  text-muted-foreground">
+                  {toPersianDigits(c.sortOrder)}
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-1">

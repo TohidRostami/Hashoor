@@ -66,13 +66,13 @@ export function ProductCard({ product }: { product: ProductDTO }) {
         <div className="min-h-[2.5rem] shrink-0 text-start text-sm sm:flex sm:min-h-0 sm:items-center">
           {product.compareAtPrice && (
             <>
-            <span className="font-gowun-batang block text-xs text-muted-foreground line-through">
+            <span className="block text-xs text-muted-foreground line-through">
               {formatPrice(product.compareAtPrice)}
             </span>
             <span className="px-1 hidden sm:flex">-</span>
             </>
           )}
-          <span className="font-gowun-batang text-foreground">
+          <span className="text-foreground">
             {formatPrice(product.price)}
           </span>
           <span className="text-muted-foreground pr-1"> تومان</span>

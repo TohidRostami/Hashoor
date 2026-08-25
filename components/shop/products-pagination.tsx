@@ -59,7 +59,7 @@ export function ProductsPagination({
           </span>
         ) : (
           <PageLink key={p} href={hrefFor(p)} active={p === currentPage}>
-            <span className="font-gowun-batang">{toPersianDigits(p)}</span>
+            <span className="">{toPersianDigits(p)}</span>
           </PageLink>
         ),
       )}

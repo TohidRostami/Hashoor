@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/lib/store/cart";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, toPersianDigits } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { placeOrder } from "@/app/(shop)/checkout/actions";
 
@@ -125,16 +125,16 @@ export function CheckoutForm({
               <span className="text-muted-foreground">
                 {item.name}
                 {item.size && ` (${item.size})`}
-                <span className="font-nums"> × {item.quantity}</span>
+                <span className="pr-1"> × {toPersianDigits(item.quantity)}</span>
               </span>
-              <span className="font-nums shrink-0">{formatPrice(item.price * item.quantity)}</span>
+              <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>
             </li>
           ))}
         </ul>
         <div className="mt-4 flex justify-between border-t border-border pt-4 text-base font-medium">
           <span>جمع جزء</span>
           <span>
-            <span className="font-nums">{formatPrice(subtotal)}</span>
+            <span>{formatPrice(subtotal)}</span>
             <span> تومان</span>
           </span>
         </div>

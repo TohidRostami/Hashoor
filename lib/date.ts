@@ -1,4 +1,5 @@
 import { toJalaali } from "jalaali-js";
+import { toPersianDigits } from "./format";
 
 const MONTHS_FA = [
   "فروردین",
@@ -19,5 +20,5 @@ const MONTHS_FA = [
 export function formatJalali(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const { jy, jm, jd } = toJalaali(d);
-  return `${jd} ${MONTHS_FA[jm - 1]} ${jy}`;
+  return `${toPersianDigits(jd)} ${MONTHS_FA[jm - 1]} ${toPersianDigits(jy)}`;
 }
