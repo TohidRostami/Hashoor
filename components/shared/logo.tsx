@@ -40,8 +40,6 @@ export function Logo({
 }) {
   return (
     <span className={cn("inline-flex items-center justify-center", className)}>
-      {/* <LogoMark className={markClassName} /> */}
-      {/* <span className="text-lg font-bold tracking-normal">{siteConfig.site.name}</span> */}
       <Image
         src="/logo.png"
         alt={siteConfig.site.name}

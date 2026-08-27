@@ -51,7 +51,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
-
+  console.log(product)
   const related = await getRelatedProducts(product.id, product.category.id, 4);
   const image = product.images[0];
   const inStock =

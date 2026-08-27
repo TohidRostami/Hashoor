@@ -33,6 +33,7 @@ export function NewsletterSection() {
           className="mx-auto mt-7 flex max-w-sm flex-col gap-3 sm:flex-row"
         >
           <Input
+            id="newsletter-email"
             type="email"
             required
             dir="ltr"
