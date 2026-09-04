@@ -66,7 +66,7 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Get
   const [products, totalCount] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: { category: true, images: true },
+      include: { category: true, images: true, colors: true },
       orderBy: ORDER_BY[sort],
       skip: (page - 1) * perPage,
       take: perPage,
@@ -87,11 +87,15 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Get
 
 export async function getProductBySlug(slug: string): Promise<ProductDetailDTO | null> {
   const product = await prisma.product.findUnique({
-    where: { slug },
+    where: { slug, isPublished: true },
     include: {
       category: true,
-      images: true,
-      variants: { include: { size: true }, orderBy: { size: { sortOrder: "asc" } } },
+      images: { orderBy: { sortOrder: "asc" } },
+      colors: { orderBy: { sortOrder: "asc" } },
+      variants: {
+        include: { size: true, color: true },
+        orderBy: [{ color: { sortOrder: "asc" } }, { size: { sortOrder: "asc" } }],
+      },
     },
   });
   return product as unknown as ProductDetailDTO | null;

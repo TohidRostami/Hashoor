@@ -52,7 +52,7 @@ export default async function ProductsPage({
     getProducts({ categorySlug, sort, query, page, perPage }),
   ]);
   const { products, totalCount, totalPages, page: currentPage } = result;
-  console.log(products)
+  console.log(products);
   const activeCategory = categories.find((c) => c.slug === categorySlug);
   const currentParams = new URLSearchParams(
     Object.entries(params).filter(

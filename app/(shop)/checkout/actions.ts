@@ -5,8 +5,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { generateOrderNumber, initiatePayment } from "@/lib/payment";
 import { getSiteSettings } from "@/lib/queries/settings";
+import { syncProductInStock } from "@/lib/inventory";
 
-export type CheckoutItem = { productId: string; variantId: string; quantity: number };
+export type CheckoutItem = {
+  productId: string;
+  variantId: string;
+  quantity: number;
+};
 
 export type AddressInput = {
   fullName: string;
@@ -23,7 +28,7 @@ export type PlaceOrderResult =
 
 export async function placeOrder(
   items: CheckoutItem[],
-  address: AddressInput
+  address: AddressInput,
 ): Promise<PlaceOrderResult> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
@@ -41,6 +46,7 @@ export async function placeOrder(
     variantId: string | null;
     name: string;
     size: string | null;
+    color: string | null;
     price: number;
     quantity: number;
   }[] = [];
@@ -48,18 +54,27 @@ export async function placeOrder(
   // reserved — a product with no variants sends its own id as a
   // placeholder variantId (see add-to-cart-form.tsx), and has no
   // per-variant stock to track.
-  const stockReservations: { variantId: string; quantity: number; name: string }[] = [];
+  const stockReservations: {
+    productId: string;
+    variantId: string;
+    quantity: number;
+    name: string;
+  }[] = [];
 
   for (const item of items) {
     const product = (await prisma.product.findUnique({
       where: { id: item.productId },
-      include: { variants: { include: { size: true } } },
+      include: { variants: { include: { size: true, color: true } } },
     })) as {
       id: string;
       name: string;
       price: number;
       isPublished: boolean;
-      variants: { id: string; size: { name: string } | null }[];
+      variants: {
+        id: string;
+        size: { name: string } | null;
+        color: { name: string } | null;
+      }[];
     } | null;
 
     if (!product || !product.isPublished) {
@@ -68,7 +83,12 @@ export async function placeOrder(
 
     const variant = product.variants.find((v) => v.id === item.variantId);
     if (variant) {
-      stockReservations.push({ variantId: variant.id, quantity: item.quantity, name: product.name });
+      stockReservations.push({
+        productId: item.productId,
+        variantId: variant.id,
+        quantity: item.quantity,
+        name: product.name,
+      });
     }
 
     subtotal += product.price * item.quantity;
@@ -77,6 +97,7 @@ export async function placeOrder(
       variantId: item.variantId || null,
       name: product.name,
       size: variant?.size?.name ?? null,
+      color: variant?.color?.name ?? null,
       price: product.price,
       quantity: item.quantity,
     });
@@ -90,9 +111,13 @@ export async function placeOrder(
   try {
     await prisma.$transaction(async (tx) => {
       for (const reservation of stockReservations) {
-        const variant = await tx.productVariant.findUnique({ where: { id: reservation.variantId } });
+        const variant = await tx.productVariant.findUnique({
+          where: { id: reservation.variantId },
+        });
         if (!variant) {
-          throw new Error(`یکی از اقلام سبد خرید («${reservation.name}») دیگر در دسترس نیست.`);
+          throw new Error(
+            `یکی از اقلام سبد خرید («${reservation.name}») دیگر در دسترس نیست.`,
+          );
         }
         if (variant.stock < reservation.quantity) {
           throw new Error(`موجودی «${reservation.name}» کافی نیست.`);
@@ -100,13 +125,27 @@ export async function placeOrder(
 
         const updated = await tx.productVariant.updateMany({
           where: { id: reservation.variantId, version: variant.version },
-          data: { stock: { decrement: reservation.quantity }, version: { increment: 1 } },
+          data: {
+            stock: { decrement: reservation.quantity },
+            version: { increment: 1 },
+          },
         });
         if (updated.count === 0) {
           throw new Error(
-            `موجودی «${reservation.name}» هم‌زمان توسط سفارش دیگری تغییر کرد — لطفاً دوباره تلاش کنید.`
+            `موجودی «${reservation.name}» هم‌زمان توسط سفارش دیگری تغییر کرد — لطفاً دوباره تلاش کنید.`,
           );
         }
+      }
+
+      // Same transaction as the stock decrements above — the
+      // availability flag can't drift out of sync with the numbers that
+      // produced it. Deduped so a cart with two sizes of the same
+      // product only recomputes it once.
+      const affectedProductIds = new Set(
+        stockReservations.map((r) => r.productId),
+      );
+      for (const productId of affectedProductIds) {
+        await syncProductInStock(tx, productId);
       }
     });
   } catch (e) {
@@ -115,7 +154,8 @@ export async function placeOrder(
 
   const settings = await getSiteSettings();
   const freeShippingMet =
-    settings.freeShippingThreshold != null && subtotal >= settings.freeShippingThreshold;
+    settings.freeShippingThreshold != null &&
+    subtotal >= settings.freeShippingThreshold;
   const shippingCost = freeShippingMet ? 0 : settings.standardShippingCost;
   const total = subtotal + shippingCost;
 
@@ -155,12 +195,16 @@ export async function placeOrder(
  */
 export async function completeSimulatedPayment(
   orderId: string,
-  outcome: "success" | "fail"
+  outcome: "success" | "fail",
 ): Promise<string> {
   if (outcome === "success") {
     await prisma.order.update({
       where: { id: orderId },
-      data: { status: "PAID", paidAt: new Date(), gatewayRef: `SIM-${Date.now()}` },
+      data: {
+        status: "PAID",
+        paidAt: new Date(),
+        gatewayRef: `SIM-${Date.now()}`,
+      },
     });
     return `/checkout/result?order=${orderId}&status=success`;
   }
@@ -168,6 +212,7 @@ export async function completeSimulatedPayment(
   // Payment failed — release the stock that was reserved for this order
   // so it doesn't stay locked away from other customers.
   const items = (await prisma.orderItem.findMany({ where: { orderId } })) as {
+    productId: string;
     variantId: string | null;
     quantity: number;
   }[];
@@ -175,9 +220,17 @@ export async function completeSimulatedPayment(
     if (item.variantId) {
       await prisma.productVariant.update({
         where: { id: item.variantId },
-        data: { stock: { increment: item.quantity }, version: { increment: 1 } },
+        data: {
+          stock: { increment: item.quantity },
+          version: { increment: 1 },
+        },
       });
     }
+  }
+
+  const affectedProductIds = new Set(items.map((i) => i.productId));
+  for (const productId of affectedProductIds) {
+    await syncProductInStock(prisma, productId);
   }
 
   await prisma.order.update({

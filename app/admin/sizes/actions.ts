@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminOrSubAdmin } from "@/lib/require-admin";
 import type { SizeDTO } from "@/lib/types";
 
 export type SizeFormInput = {
@@ -13,20 +13,27 @@ export type SizeFormInput = {
 
 function validate(input: SizeFormInput): string | null {
   if (!input.name.trim()) return "نام سایز را وارد کنید.";
-  if (input.name.trim().length > 20) return "نام سایز باید کوتاه باشد (حداکثر ۲۰ کاراکتر).";
+  if (input.name.trim().length > 20)
+    return "نام سایز باید کوتاه باشد (حداکثر ۲۰ کاراکتر).";
   return null;
 }
 
 export async function createSize(
-  input: SizeFormInput
+  input: SizeFormInput,
 ): Promise<{ error: string } | { success: true; size: SizeDTO }> {
-  await requireAdmin();
+  await requireAdminOrSubAdmin();
   const error = validate(input);
   if (error) return { error };
 
-  const trimmed = { ...input, name: input.name.trim(), description: input.description.trim() || null };
+  const trimmed = {
+    ...input,
+    name: input.name.trim(),
+    description: input.description.trim() || null,
+  };
 
-  const existing = await prisma.size.findUnique({ where: { name: trimmed.name } });
+  const existing = await prisma.size.findUnique({
+    where: { name: trimmed.name },
+  });
   if (existing) return { error: "سایزی با همین نام از قبل وجود دارد." };
 
   const size = await prisma.size.create({ data: trimmed });
@@ -37,13 +44,17 @@ export async function createSize(
 }
 
 export async function updateSize(id: string, input: SizeFormInput) {
-  await requireAdmin();
+  await requireAdminOrSubAdmin();
   const error = validate(input);
   if (error) return { error };
 
   await prisma.size.update({
     where: { id },
-    data: { ...input, name: input.name.trim(), description: input.description.trim() || null },
+    data: {
+      ...input,
+      name: input.name.trim(),
+      description: input.description.trim() || null,
+    },
   });
   revalidatePath("/admin/sizes");
   revalidatePath("/admin/products");
@@ -51,7 +62,7 @@ export async function updateSize(id: string, input: SizeFormInput) {
 }
 
 export async function deleteSize(id: string) {
-  await requireAdmin();
+  await requireAdminOrSubAdmin();
   await prisma.size.delete({ where: { id } });
   revalidatePath("/admin/sizes");
   revalidatePath("/admin/products");

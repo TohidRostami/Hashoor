@@ -28,8 +28,30 @@ const NAV = [
   { href: "/admin/settings", label: "تنظیمات", icon: Settings },
 ];
 
-export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
+// The only sections subAdmin may see — kept as a lookup set rather than
+// splitting NAV in two, so NAV above stays the single source of truth
+// for order/icons/labels. This is a UI-only convenience: the *real*
+// enforcement is requireAdmin()/requireAdminOrSubAdmin() on each page
+// and action — hiding a link never substitutes for that.
+const SUBADMIN_ALLOWED_HREFS = new Set([
+  "/admin",
+  "/admin/products",
+  "/admin/categories",
+  "/admin/sizes",
+]);
+
+export function AdminNav({
+  onNavigate,
+  role,
+}: {
+  onNavigate?: () => void;
+  role?: string;
+}) {
   const pathname = usePathname();
+  const visibleNav =
+    role === "SUBADMIN"
+      ? NAV.filter((item) => SUBADMIN_ALLOWED_HREFS.has(item.href))
+      : NAV;
 
   return (
     <div className="flex h-full flex-col text-sidebar-foreground">
@@ -40,8 +62,10 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5 px-3">
-        {NAV.map((item) => {
-          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        {visibleNav.map((item) => {
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
@@ -52,7 +76,7 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
                 "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                  : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
               <Icon className="size-4" strokeWidth={1.6} />

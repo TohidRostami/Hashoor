@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/content";
 export function PhilosophySection() {
   const { philosophy } = siteConfig.home;
   return (
-    <section className="m-4 border-y border-border rounded-3xl bg-taupe shadow-lg">
+    <section className="m-4  rounded-3xl bg-cream-white shadow-lg">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-20 sm:px-6 lg:grid-cols-12 lg:px-8 lg:py-28">
         <Reveal className="lg:col-span-4">
           <Badge variant="outline" className="border-foreground/20">

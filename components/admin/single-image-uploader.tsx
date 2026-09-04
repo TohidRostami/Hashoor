@@ -24,16 +24,25 @@ export function SingleImageUploader({
   async function handleFile(file: File | undefined) {
     if (!file) return;
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    const result = await uploadAction(formData);
-    setUploading(false);
-    if ("error" in result) {
-      toast.error(result.error);
-      return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const result = await uploadAction(formData);
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      onChange(result.url);
+    } catch {
+      // A thrown exception (network drop, file exceeding the server's
+      // body-size limit, etc.) used to skip past the reset below and
+      // leave this stuck on "در حال آپلود..." forever.
+      toast.error("آپلود تصویر با خطا مواجه شد. لطفاً دوباره تلاش کنید.");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
-    onChange(result.url);
-    if (inputRef.current) inputRef.current.value = "";
   }
 
   if (value) {
@@ -41,7 +50,7 @@ export function SingleImageUploader({
       <div
         className={cn(
           "group relative w-full overflow-hidden rounded-md border border-border bg-secondary",
-          aspectClassName
+          aspectClassName,
         )}
       >
         <Image src={value} alt="" fill sizes="400px" className="object-cover" />
@@ -61,7 +70,7 @@ export function SingleImageUploader({
     <label
       className={cn(
         "flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground",
-        aspectClassName
+        aspectClassName,
       )}
     >
       {uploading ? (

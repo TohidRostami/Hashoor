@@ -4,8 +4,16 @@ import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button";
+import { requireAdmin } from "@/lib/require-admin";
 import { getAllDiscountCodes } from "@/lib/queries/admin-discounts";
 import { deleteDiscountCode } from "@/app/admin/discounts/actions";
 import { formatPrice, toPersianDigits } from "@/lib/format";
@@ -13,6 +21,8 @@ import { formatPrice, toPersianDigits } from "@/lib/format";
 export const metadata: Metadata = { title: "کدهای تخفیف | پنل مدیریت" };
 
 export default async function AdminDiscountsPage() {
+  // Discounts is ADMIN-only — see the same note in orders/page.tsx.
+  await requireAdmin();
   const codes = await getAllDiscountCodes();
 
   return (
@@ -51,9 +61,13 @@ export default async function AdminDiscountsPage() {
             <TableBody>
               {codes.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="text-center  font-medium">{c.code}</TableCell>
+                  <TableCell className="text-center  font-medium">
+                    {c.code}
+                  </TableCell>
                   <TableCell className="text-center  text-muted-foreground">
-                    {c.type === "PERCENTAGE" ? `${toPersianDigits(c.value)}٪` : `${formatPrice(c.value)} تومان`}
+                    {c.type === "PERCENTAGE"
+                      ? `${toPersianDigits(c.value)}٪`
+                      : `${formatPrice(c.value)} تومان`}
                   </TableCell>
                   <TableCell className="text-center  text-muted-foreground">
                     {toPersianDigits(c.usedCount)}
@@ -67,7 +81,9 @@ export default async function AdminDiscountsPage() {
                   <TableCell className="pe-6">
                     <div className="flex justify-center gap-1">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/admin/discounts/${c.id}/edit`}>ویرایش</Link>
+                        <Link href={`/admin/discounts/${c.id}/edit`}>
+                          ویرایش
+                        </Link>
                       </Button>
                       <DeleteEntityButton
                         name={c.code}

@@ -14,6 +14,7 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+  SUBADMIN
 }
 
 model User {
@@ -128,6 +129,7 @@ model Product {
   // soft delete: a product with even one past order can't be hard-deleted
   // (OrderItem references it) — it gets archived instead.
   isArchived      Boolean  @default(false)
+  inStock         Boolean  @default(true)
   metaTitle       String?
   metaDescription String?
   createdAt       DateTime @default(now())
@@ -136,28 +138,55 @@ model Product {
   category   Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images     ProductImage[]
   variants   ProductVariant[]
+  colors     Color[]
   reviews    Review[]
   orderItems OrderItem[]
 
   @@index([categoryId])
   @@index([isPublished, isFeatured])
+  @@index([isPublished, inStock])
   @@index([createdAt])
   @@map("product")
 }
 
-// Left empty until real photography is uploaded through the admin panel —
-// the storefront falls back to the on-brand placeholder graphic when a
-// product has no images.
+// A product's colors are entered fresh on that product's own form (no
+// shared cross-product palette, unlike Size) — so this is scoped to one
+// product and cascade-deletes with it, the same as ProductImage.
+model Color {
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  hexValue  String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product  Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variants ProductVariant[]
+  images   ProductImage[]
+
+  // Same product can't have two colors with the same name (e.g. admin
+  // accidentally typing "قرمز" twice).
+  @@unique([productId, name])
+  @@index([productId])
+  @@map("color")
+}
+
+// Each image belongs to at most one color (colorId is null only for
+// legacy/generic images not tied to a specific color) — the storefront
+// filters this list by the selected color to swap photos.
 model ProductImage {
   id        String  @id @default(cuid())
   productId String
+  colorId   String?
   url       String
   alt       String?
   sortOrder Int     @default(0)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  color   Color?  @relation(fields: [colorId], references: [id], onDelete: SetNull)
 
   @@index([productId])
+  @@index([colorId])
   @@map("product_image")
 }
 
@@ -165,8 +194,7 @@ model ProductVariant {
   id        String  @id @default(cuid())
   productId String
   sizeId    String?
-  color     String?
-  colorHex  String?
+  colorId   String?
   stock     Int     @default(0)
   sku       String? @unique
   // optimistic locking: stock decrements should use WHERE version = X so
@@ -175,16 +203,22 @@ model ProductVariant {
 
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   size       Size?       @relation(fields: [sizeId], references: [id], onDelete: SetNull)
+  color      Color?      @relation(fields: [colorId], references: [id], onDelete: SetNull)
   orderItems OrderItem[]
 
+  // One row per (color, size) combo per product — no duplicate stock
+  // entries for the same combination.
+  @@unique([productId, sizeId, colorId])
   @@index([productId])
   @@index([sizeId])
+  @@index([colorId])
   @@map("product_variant")
 }
 
 // Sizes are store-wide and admin-managed (see /admin/sizes) — created once,
 // then reusable across any future product, since different garment types
 // need different size sets (S/M/L for shirts, 38-46 for shoes, etc).
+// Colors, unlike sizes, are NOT shared this way — see the Color model.
 model Size {
   id          String   @id @default(cuid())
   name        String   @unique
@@ -283,6 +317,9 @@ model OrderItem {
   variantId String?
   name      String
   size      String?
+  // Snapshot of the color name at purchase time — same reasoning as
+  // `size` above: survives even if the color is later renamed/removed.
+  color     String?
   price     Int
   quantity  Int
 

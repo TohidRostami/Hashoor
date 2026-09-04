@@ -22,6 +22,8 @@
   --brand-accent: #584f48; /* Accent / Walnut */
   --brand-accent-2: #4b5979; /* Accent 2 / Dusty Blue */
   --brand-dark-blue: #1f2530;
+  --brand-light-blue:#779ACE;
+  --brand-cream-white:#F1ECE1;
   --brand-taupe: #A89C8E;
   --brand-destructive: #a13b2a; /* Muted rust — matched to the warm palette */
 
@@ -108,6 +110,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-dark-blue: var(--brand-dark-blue);
+  --color-light-blue: var(--brand-light-blue);
+  --color-cream-white: var(--brand-cream-white);
   --color-taupe: var(--brand-taupe);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);

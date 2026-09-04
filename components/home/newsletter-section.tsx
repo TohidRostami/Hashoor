@@ -42,7 +42,7 @@ export function NewsletterSection() {
             placeholder={newsletter.placeholder}
             className="flex-1 text-end"
           />
-          <Button type="submit" className="bg-dark-blue">{newsletter.cta}</Button>
+          <Button type="submit" className="bg-light-blue">{newsletter.cta}</Button>
         </form>
       </Reveal>
     </section>

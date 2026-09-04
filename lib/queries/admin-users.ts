@@ -5,11 +5,13 @@ export type AdminUserRow = {
   name: string;
   email: string;
   phoneNumber: string | null;
-  role: "CUSTOMER" | "ADMIN";
+  role: "CUSTOMER" | "ADMIN" | "SUBADMIN";
   createdAt: string | Date;
 };
 
 export async function getAllUsers(): Promise<AdminUserRow[]> {
   const users = (await prisma.user.findMany({})) as unknown as AdminUserRow[];
-  return users.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return users.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 }

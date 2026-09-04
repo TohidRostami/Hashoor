@@ -10,7 +10,9 @@ function Select(props: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-function SelectValue(props: React.ComponentProps<typeof SelectPrimitive.Value>) {
+function SelectValue(
+  props: React.ComponentProps<typeof SelectPrimitive.Value>,
+) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
@@ -19,7 +21,9 @@ function SelectTrigger({
   children,
   size = "default",
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+  size?: "default" | "sm";
+}) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
@@ -30,7 +34,7 @@ function SelectTrigger({
         "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:opacity-60",
-        className
+        className,
       )}
       {...props}
     >
@@ -58,14 +62,15 @@ function SelectContent({
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
-          className
+          className,
         )}
         {...props}
       >
         <SelectPrimitive.Viewport
           className={cn(
             "p-1",
-            position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"
+            position === "popper" &&
+              "w-full min-w-[var(--radix-select-trigger-width)]",
           )}
         >
           {children}
@@ -87,7 +92,7 @@ function SelectItem({
         "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-2 ps-8 pe-2 text-sm outline-none select-none",
         "focus:bg-secondary focus:text-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        className
+        className,
       )}
       {...props}
     >

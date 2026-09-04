@@ -88,17 +88,16 @@ export async function getAllProductsForAdmin(
   };
 }
 
-export async function getProductForEdit(
-  id: string,
-): Promise<ProductDetailDTO | null> {
+export async function getProductForEdit(id: string): Promise<ProductDetailDTO | null> {
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
       category: true,
-      images: true,
+      images: { orderBy: { sortOrder: "asc" } },
+      colors: { orderBy: { sortOrder: "asc" } },
       variants: {
-        include: { size: true },
-        orderBy: { size: { sortOrder: "asc" } },
+        include: { size: true, color: true },
+        orderBy: [{ color: { sortOrder: "asc" } }, { size: { sortOrder: "asc" } }],
       },
     },
   });

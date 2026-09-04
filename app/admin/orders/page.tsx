@@ -2,7 +2,15 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Badge } from "@/components/ui/badge";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { requireAdmin } from "@/lib/require-admin";
 import { getAllOrdersForAdmin } from "@/lib/queries/admin-orders";
 import { formatPrice } from "@/lib/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONE } from "@/lib/order-status";
@@ -10,6 +18,11 @@ import { ORDER_STATUS_LABELS, ORDER_STATUS_TONE } from "@/lib/order-status";
 export const metadata: Metadata = { title: "سفارش‌ها | پنل مدیریت" };
 
 export default async function AdminOrdersPage() {
+  // Orders is ADMIN-only — the layout alone now also lets subAdmin into
+  // /admin/* in general, so this page must re-check the stricter rule
+  // itself, or a direct link would let subAdmin straight in regardless
+  // of the hidden nav item.
+  await requireAdmin();
   const orders = await getAllOrdersForAdmin();
 
   return (
@@ -51,7 +64,9 @@ export default async function AdminOrdersPage() {
                       {ORDER_STATUS_LABELS[order.status] ?? order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center ">{formatPrice(order.total)}</TableCell>
+                  <TableCell className="text-center ">
+                    {formatPrice(order.total)}
+                  </TableCell>
                   <TableCell className="pe-6 text-center">
                     <Link
                       href={`/admin/orders/${order.id}`}

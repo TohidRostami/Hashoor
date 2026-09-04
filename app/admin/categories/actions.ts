@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminOrSubAdmin } from "@/lib/require-admin";
 import { deleteFromArvan, keyFromUrl } from "@/lib/storage";
 import { processAndUploadImage, type UploadOutcome } from "@/lib/image-upload";
 
@@ -23,7 +23,7 @@ function validate(input: CategoryFormInput): string | null {
 }
 
 export async function createCategory(input: CategoryFormInput) {
-  await requireAdmin();
+  await requireAdminOrSubAdmin();
   const error = validate(input);
   if (error) return { error };
 
@@ -35,11 +35,13 @@ export async function createCategory(input: CategoryFormInput) {
 }
 
 export async function updateCategory(id: string, input: CategoryFormInput) {
-  await requireAdmin();
+  await requireAdminOrSubAdmin();
   const error = validate(input);
   if (error) return { error };
 
-  const existing = (await prisma.category.findUnique({ where: { id } })) as { image: string | null } | null;
+  const existing = (await prisma.category.findUnique({ where: { id } })) as {
+    image: string | null;
+  } | null;
   if (existing?.image && existing.image !== input.image) {
     const key = keyFromUrl(existing.image);
     if (key) await deleteFromArvan(key).catch(() => {});
@@ -53,8 +55,10 @@ export async function updateCategory(id: string, input: CategoryFormInput) {
 }
 
 export async function deleteCategory(id: string) {
-  await requireAdmin();
-  const existing = (await prisma.category.findUnique({ where: { id } })) as { image: string | null } | null;
+  await requireAdminOrSubAdmin();
+  const existing = (await prisma.category.findUnique({ where: { id } })) as {
+    image: string | null;
+  } | null;
   if (existing?.image) {
     const key = keyFromUrl(existing.image);
     if (key) await deleteFromArvan(key).catch(() => {});
@@ -64,8 +68,10 @@ export async function deleteCategory(id: string) {
   return { success: true as const };
 }
 
-export async function uploadCategoryImage(formData: FormData): Promise<UploadOutcome> {
-  await requireAdmin();
+export async function uploadCategoryImage(
+  formData: FormData,
+): Promise<UploadOutcome> {
+  await requireAdminOrSubAdmin();
   const file = formData.get("file");
   if (!(file instanceof File)) return { error: "فایلی انتخاب نشده است." };
   return processAndUploadImage(file, "categories");

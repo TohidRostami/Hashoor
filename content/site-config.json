@@ -46,6 +46,7 @@
     "main": [
       { "label": "خانه", "href": "/" },
       { "label": "محصولات", "href": "/products" },
+      { "label": "دسته بندی محصولات", "href": "/categories" },
       { "label": "درباره ما", "href": "/about" },
       { "label": "تماس با ما", "href": "/contact" }
     ],

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/format";
 
 function buildAdminProductsHref(
   current: URLSearchParams,
@@ -56,7 +57,7 @@ export function AdminProductsPagination({
           </span>
         ) : (
           <PageLink key={p} href={hrefFor(p)} active={p === currentPage}>
-            <span className="font-nums">{p}</span>
+            <span>{toPersianDigits(p)}</span>
           </PageLink>
         )
       )}

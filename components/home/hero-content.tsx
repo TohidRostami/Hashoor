@@ -86,8 +86,8 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
             {hero.subheadline}
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <Button size="lg" className="w-full sm:w-auto bg-dark-blue" asChild>
+          <div className="mt-10 flex gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Button size="sm" className="w-full sm:w-auto bg-dark-blue" asChild>
               <Link href={hero.ctaPrimary.href}>
                 {hero.ctaPrimary.label}
                 <ArrowLeft className="size-4" />
@@ -95,7 +95,7 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
             </Button>
 
             <Button
-              size="lg"
+              size="sm"
               variant="secondary"
               className="w-full sm:w-auto"
               asChild

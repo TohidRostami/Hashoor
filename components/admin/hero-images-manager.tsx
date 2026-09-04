@@ -26,19 +26,37 @@ export function HeroImagesManager({
     if (!files || files.length === 0) return;
     setUploading(true);
 
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadAction(formData);
-      if ("error" in result) {
-        toast.error(result.error);
-        continue;
-      }
-      onChange([...images, { url: result.url, isActive: true }]);
-    }
+    // Same reasoning as MultiImageUploader: a local accumulator, not the
+    // `images` prop, so multiple files uploaded in one batch don't
+    // clobber each other through a stale closure.
+    let currentImages = images;
 
-    setUploading(false);
-    if (inputRef.current) inputRef.current.value = "";
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const result = await uploadAction(formData);
+          if ("error" in result) {
+            toast.error(result.error);
+            continue;
+          }
+          currentImages = [
+            ...currentImages,
+            { url: result.url, isActive: true },
+          ];
+          onChange(currentImages);
+        } catch {
+          toast.error(
+            "آپلود این فایل با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+          );
+        }
+      }
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   }
 
   function removeImage(url: string) {

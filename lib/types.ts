@@ -7,10 +7,26 @@ export type CategoryDTO = {
   sortOrder: number;
 };
 
+export type ColorDTO = {
+  id: string;
+  name: string;
+  hexValue: string | null;
+  sortOrder: number;
+};
+
+export type SizeDTO = {
+  id: string;
+  name: string;
+  description: string | null;
+  sortOrder: number;
+};
+
 export type ProductImageDTO = {
   id: string;
   url: string;
   alt: string | null;
+  sortOrder: number;
+  colorId: string | null;
 };
 
 export type ProductDTO = {
@@ -25,26 +41,22 @@ export type ProductDTO = {
   isPublished: boolean;
   metaTitle: string | null;
   metaDescription: string | null;
+  inStock: boolean; // <-- new
   category: CategoryDTO;
   images: ProductImageDTO[];
-};
-
-export type SizeDTO = {
-  id: string;
-  name: string;
-  description: string | null;
-  sortOrder: number;
+  colors: ColorDTO[];
 };
 
 export type ProductVariantDTO = {
   id: string;
   sizeId: string | null;
   size: SizeDTO | null;
-  color: string | null;
-  colorHex: string | null;
+  colorId: string | null;
+  color: ColorDTO | null;
   stock: number;
 };
 
 export type ProductDetailDTO = ProductDTO & {
+  colors: ColorDTO[];
   variants: ProductVariantDTO[];
 };

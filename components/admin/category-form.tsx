@@ -15,15 +15,16 @@ import {
   uploadCategoryImage,
   type CategoryFormInput,
 } from "@/app/admin/categories/actions";
+import { slugify } from "@/lib/slug";
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
+// function slugify(value: string) {
+//   return value
+//     .toLowerCase()
+//     .trim()
+//     .replace(/[^a-z0-9\s-]/g, "")
+//     .replace(/\s+/g, "-")
+//     .replace(/-+/g, "-");
+// }
 
 export function CategoryForm({ category }: { category?: CategoryDTO }) {
   const router = useRouter();

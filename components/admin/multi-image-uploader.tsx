@@ -22,19 +22,43 @@ export function MultiImageUploader({
     if (!files || files.length === 0) return;
     setUploading(true);
 
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadAction(formData);
-      if ("error" in result) {
-        toast.error(result.error);
-        continue;
-      }
-      onChange([...images, result.url]);
-    }
+    // A local accumulator, not the `images` prop — onChange is called
+    // once per file below, and relying on the (stale) `images` closure
+    // across iterations would silently drop everything but the last
+    // successful upload when more than one file is selected at once.
+    let currentImages = images;
 
-    setUploading(false);
-    if (inputRef.current) inputRef.current.value = "";
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const result = await uploadAction(formData);
+          if ("error" in result) {
+            toast.error(result.error);
+            continue;
+          }
+          currentImages = [...currentImages, result.url];
+          onChange(currentImages);
+        } catch {
+          // A thrown exception (network drop, the file exceeding the
+          // server's body-size limit, etc.) shouldn't take down the
+          // whole batch or leave the uploader stuck — report it and
+          // move on to the next file.
+          toast.error(
+            "آپلود این فایل با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+          );
+        }
+      }
+    } finally {
+      // Guaranteed to run whether the loop finished cleanly or an
+      // unexpected error escaped it — this is exactly what was missing
+      // before, and why a failed upload could leave the button stuck on
+      // "در حال آپلود..." forever.
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   }
 
   function removeImage(url: string) {
@@ -50,7 +74,13 @@ export function MultiImageUploader({
               key={url}
               className="group relative aspect-square overflow-hidden rounded-md border border-border bg-secondary"
             >
-              <Image src={url} alt="" fill sizes="120px" className="object-cover" />
+              <Image
+                src={url}
+                alt=""
+                fill
+                sizes="120px"
+                className="object-cover"
+              />
               <button
                 type="button"
                 onClick={() => removeImage(url)}

@@ -4,11 +4,16 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/require-admin";
 
-export async function setUserRole(userId: string, role: "ADMIN" | "CUSTOMER") {
+export type UserRole = "ADMIN" | "SUBADMIN" | "CUSTOMER";
+
+export async function setUserRole(userId: string, role: UserRole) {
   const session = await requireAdmin();
 
-  if (session.user.id === userId && role === "CUSTOMER") {
-    return { error: "نمی‌توانید دسترسی ادمین خودتان را حذف کنید." };
+  // Broadened from the original "can't demote self to CUSTOMER" check —
+  // demoting yourself to SUBADMIN would just as surely lock you out of
+  // the admin-only sections (orders, discounts, users, settings).
+  if (session.user.id === userId && role !== "ADMIN") {
+    return { error: "نمی‌توانید نقش خودتان را تغییر دهید." };
   }
 
   await prisma.user.update({ where: { id: userId }, data: { role } });

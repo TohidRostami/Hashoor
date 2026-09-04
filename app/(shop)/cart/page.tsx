@@ -73,7 +73,7 @@ export default function CartPage() {
                   fill
                   loading="lazy"
                   sizes="(min-width: 640px) 112px, 96px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-contain transition-transform duration-500 group-hover:scale-105"
                 />
               </Link>
 

@@ -14,7 +14,7 @@ const trustItems = [
 
 export function SiteFooter() {
   return (
-    <footer className="m-4 rounded-3xl bg-dark-blue shadow-lg">
+    <footer className="m-4 rounded-3xl bg-[#B59E7D] shadow-lg">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
         <div className="grid grid-cols-2 gap-10 py-12 sm:grid-cols-2 md:grid-cols-5">

@@ -7,6 +7,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { ProductPlaceholder } from "@/components/shared/product-placeholder";
 import type { GarmentVariant } from "@/components/shared/garment-glyph";
 import { cn } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/format";
 
 const KNOWN_VARIANTS: GarmentVariant[] = [
   "shirts", "tshirts", "pants", "outerwear", "shoes", "accessories",
@@ -63,7 +64,7 @@ export function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="group relative overflow-hidden rounded-lg border border-border">
+      <div className="group relative overflow-hidden rounded-lg">
         <div ref={mainRef} className="overflow-hidden">
           <div className="flex">
             {images.map((image, i) => (
@@ -75,7 +76,7 @@ export function ProductGallery({
                   priority={i === 0}
                   loading={i === 0 ? undefined : "lazy"}
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
             ))}
@@ -102,7 +103,7 @@ export function ProductGallery({
             </button>
             <span className="absolute bottom-3 end-3 rounded-full bg-background/80 px-2.5 py-1 text-xs text-foreground backdrop-blur">
               <span className="font-nums">
-                {selectedIndex + 1} / {images.length}
+                {toPersianDigits(selectedIndex + 1)} / {toPersianDigits(images.length)}
               </span>
             </span>
           </>
@@ -125,7 +126,7 @@ export function ProductGallery({
                     : "border-transparent opacity-70 hover:border-border hover:opacity-100"
                 )}
               >
-                <Image src={image.url} alt="" fill sizes="80px" className="object-cover" />
+                <Image src={image.url} alt="preview-picture" fill sizes="80px" className="object-contain" />
               </button>
             ))}
           </div>

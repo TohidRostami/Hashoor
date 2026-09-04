@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { AdminNav } from "@/components/admin/admin-nav";
 
-export function AdminMobileHeader() {
+export function AdminMobileHeader({ role }: { role?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,7 +27,7 @@ export function AdminMobileHeader() {
           <SheetHeader className="sr-only">
             <SheetTitle>منوی مدیریت</SheetTitle>
           </SheetHeader>
-          <AdminNav onNavigate={() => setOpen(false)} />
+          <AdminNav onNavigate={() => setOpen(false)} role={role} />
         </SheetContent>
       </Sheet>
       <span className="text-sm font-medium">پنل مدیریت هاشور</span>

@@ -1,18 +1,19 @@
 import type { ReactNode } from "react";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminOrSubAdmin } from "@/lib/require-admin";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { AdminMobileHeader } from "@/components/admin/admin-mobile-header";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  await requireAdmin();
+  const session = await requireAdminOrSubAdmin();
+  const role = (session.user as unknown as { role?: string }).role ?? "ADMIN";
 
   return (
     <div className="flex min-h-screen">
       <aside className="hidden w-64 shrink-0 bg-sidebar lg:sticky lg:top-0 lg:block lg:h-screen">
-        <AdminNav />
+        <AdminNav role={role} />
       </aside>
       <div className="min-w-0 flex-1">
-        <AdminMobileHeader />
+        <AdminMobileHeader role={role} />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
