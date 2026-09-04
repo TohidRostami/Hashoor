@@ -24,25 +24,30 @@ export function AddToCartForm({
   // Only this color's variants are selectable — sizes for other colors
   // shouldn't appear (and may not even exist, since stock is tracked
   // per color+size combination).
-  console.log('PRODUCT FORM ADDTOCARD',product)
   const variantsForColor = hasColors
     ? product.variants.filter((v) => v.colorId === selectedColorId)
     : product.variants;
   const hasVariants = variantsForColor.length > 0;
 
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    variantsForColor.find((v) => v.stock > 0)?.id ?? variantsForColor[0]?.id ?? null
+    variantsForColor.find((v) => v.stock > 0)?.id ??
+      variantsForColor[0]?.id ??
+      null,
   );
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
 
-  const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
+  const selectedVariant = product.variants.find(
+    (v) => v.id === selectedVariantId,
+  );
   const inStock = hasVariants ? (selectedVariant?.stock ?? 0) > 0 : true;
 
   function handleSelectColor(colorId: string) {
     onColorChange(colorId);
     const nextVariants = product.variants.filter((v) => v.colorId === colorId);
-    setSelectedVariantId(nextVariants.find((v) => v.stock > 0)?.id ?? nextVariants[0]?.id ?? null);
+    setSelectedVariantId(
+      nextVariants.find((v) => v.stock > 0)?.id ?? nextVariants[0]?.id ?? null,
+    );
   }
 
   const sizeGuideRows = useMemo(() => {
@@ -58,7 +63,9 @@ export function AddToCartForm({
 
   function handleAdd() {
     if (hasVariants && !selectedVariant) return;
-    const colorImage = product.images.find((img) => img.colorId === selectedVariant?.colorId);
+    const colorImage = product.images.find(
+      (img) => img.colorId === selectedVariant?.colorId,
+    );
     addItem({
       productId: product.id,
       variantId: selectedVariant?.id ?? product.id,
@@ -96,7 +103,9 @@ export function AddToCartForm({
                 aria-label={c.name}
                 className={cn(
                   "flex size-9 items-center justify-center rounded-full border-2 transition-colors",
-                  c.id === selectedColorId ? "border-foreground" : "border-transparent hover:border-border"
+                  c.id === selectedColorId
+                    ? "border-foreground"
+                    : "border-transparent hover:border-border",
                 )}
               >
                 <span
@@ -134,9 +143,14 @@ export function AddToCartForm({
                   onClick={() => setSelectedVariantId(v.id)}
                   className={cn(
                     "font-nums flex h-11 min-w-11 items-center justify-center rounded-md border px-3 text-sm transition-colors",
-                    isOut && "cursor-not-allowed border-border text-muted-foreground/40 line-through",
-                    !isOut && isSelected && "border-foreground bg-foreground text-background",
-                    !isOut && !isSelected && "border-border hover:border-foreground/40"
+                    isOut &&
+                      "cursor-not-allowed border-border text-muted-foreground/40 line-through",
+                    !isOut &&
+                      isSelected &&
+                      "border-foreground bg-foreground text-background",
+                    !isOut &&
+                      !isSelected &&
+                      "border-border hover:border-foreground/40",
                   )}
                 >
                   {v.size?.name ?? "—"}
@@ -147,11 +161,20 @@ export function AddToCartForm({
         </div>
       )}
 
-      <Button size="lg" onClick={handleAdd} disabled={!inStock} className="w-full sm:w-auto">
+      <Button
+        size="lg"
+        onClick={handleAdd}
+        disabled={!inStock}
+        className="w-full sm:w-auto"
+      >
         {inStock ? siteConfig.ui.addToCart : siteConfig.ui.outOfStock}
       </Button>
 
-      <SizeGuideSheet open={sizeGuideOpen} onOpenChange={setSizeGuideOpen} sizes={sizeGuideRows} />
+      <SizeGuideSheet
+        open={sizeGuideOpen}
+        onOpenChange={setSizeGuideOpen}
+        sizes={sizeGuideRows}
+      />
     </div>
   );
 }

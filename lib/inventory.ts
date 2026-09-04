@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import type { Prisma } from "@/lib/generated/prisma";
 
 /**
  * Recomputes and persists Product.inStock from its variants' current
@@ -7,13 +7,16 @@ import { prisma } from "@/lib/db";
  *   - reserving stock at checkout (app/(shop)/checkout/actions.ts)
  *   - releasing stock back after a failed payment (same file)
  *
- * Accepts either the main `prisma` client or a `tx` handle from inside
- * `prisma.$transaction(async (tx) => ...)`, so the flag update can be
- * part of the same atomic operation as the stock change that caused it.
+ * Takes `Prisma.TransactionClient` rather than `typeof prisma` — that's
+ * the type both the main client and a `tx` handle from inside
+ * `prisma.$transaction(async (tx) => ...)` actually satisfy. The full
+ * client has a few extra methods (`$connect`, `$disconnect`, etc.) that
+ * a transaction handle doesn't, so typing this as the full client type
+ * rejects `tx` at the call site inside the checkout transaction.
  */
 export async function syncProductInStock(
-  client: typeof prisma,
-  productId: string
+  client: Prisma.TransactionClient,
+  productId: string,
 ): Promise<void> {
   const variants = (await client.productVariant.findMany({
     where: { productId },

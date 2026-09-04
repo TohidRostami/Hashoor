@@ -13,12 +13,16 @@ import { cn } from "@/lib/utils";
 export function AddToCartForm({ product }: { product: ProductDetailDTO }) {
   const hasVariants = product.variants.length > 0;
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    product.variants.find((v) => v.stock > 0)?.id ?? product.variants[0]?.id ?? null
+    product.variants.find((v) => v.stock > 0)?.id ??
+      product.variants[0]?.id ??
+      null,
   );
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
 
-  const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
+  const selectedVariant = product.variants.find(
+    (v) => v.id === selectedVariantId,
+  );
   const inStock = hasVariants ? (selectedVariant?.stock ?? 0) > 0 : true;
 
   const sizeGuideRows = useMemo(() => {
@@ -43,6 +47,7 @@ export function AddToCartForm({ product }: { product: ProductDetailDTO }) {
       size: selectedVariant?.size?.name ?? null,
       categorySlug: product.category.slug,
       image: product.images[0]?.url ?? null,
+      color: selectedVariant?.color?.name ?? null,
     });
     toast.success("به سبد خرید اضافه شد", { description: product.name });
   }
@@ -74,9 +79,14 @@ export function AddToCartForm({ product }: { product: ProductDetailDTO }) {
                   onClick={() => setSelectedVariantId(v.id)}
                   className={cn(
                     "font-nums flex h-11 min-w-11 items-center justify-center rounded-md border px-3 text-sm transition-colors",
-                    isOut && "cursor-not-allowed border-border text-muted-foreground/40 line-through",
-                    !isOut && isSelected && "border-foreground bg-foreground text-background",
-                    !isOut && !isSelected && "border-border hover:border-foreground/40"
+                    isOut &&
+                      "cursor-not-allowed border-border text-muted-foreground/40 line-through",
+                    !isOut &&
+                      isSelected &&
+                      "border-foreground bg-foreground text-background",
+                    !isOut &&
+                      !isSelected &&
+                      "border-border hover:border-foreground/40",
                   )}
                 >
                   {v.size?.name ?? "—"}
@@ -87,11 +97,20 @@ export function AddToCartForm({ product }: { product: ProductDetailDTO }) {
         </div>
       )}
 
-      <Button size="lg" onClick={handleAdd} disabled={!inStock} className="w-full sm:w-auto">
+      <Button
+        size="lg"
+        onClick={handleAdd}
+        disabled={!inStock}
+        className="w-full sm:w-auto"
+      >
         {inStock ? siteConfig.ui.addToCart : siteConfig.ui.outOfStock}
       </Button>
 
-      <SizeGuideSheet open={sizeGuideOpen} onOpenChange={setSizeGuideOpen} sizes={sizeGuideRows} />
+      <SizeGuideSheet
+        open={sizeGuideOpen}
+        onOpenChange={setSizeGuideOpen}
+        sizes={sizeGuideRows}
+      />
     </div>
   );
 }
