@@ -278,13 +278,12 @@ export function ProductForm({
               <Label htmlFor="price">قیمت (تومان)</Label>
               <Input
                 id="price"
-                type="number"
-                dir="ltr"
+                thousandSeparator
                 required
+                dir="ltr"
                 min={0}
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="text-end appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -293,12 +292,11 @@ export function ProductForm({
               </Label>
               <Input
                 id="compareAtPrice"
-                type="number"
+                thousandSeparator
                 dir="ltr"
                 min={0}
                 value={compareAtPrice}
                 onChange={(e) => setCompareAtPrice(e.target.value)}
-                className="text-end appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>

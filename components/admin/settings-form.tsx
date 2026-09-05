@@ -125,7 +125,7 @@ export function SettingsForm({
           <Label htmlFor="shippingCost">هزینه ارسال استاندارد (تومان)</Label>
           <Input
             id="shippingCost"
-            type="number"
+            thousandSeparator
             dir="ltr"
             min={0}
             value={standardShippingCost}
@@ -140,7 +140,7 @@ export function SettingsForm({
           </Label>
           <Input
             id="freeThreshold"
-            type="number"
+            thousandSeparator
             dir="ltr"
             min={0}
             placeholder="خالی = بدون ارسال رایگان"

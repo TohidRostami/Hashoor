@@ -123,7 +123,7 @@ export function ProductCard({ product }: { product: ProductDTO }) {
         <button
           type="button"
           aria-label="افزودن سریع به سبد خرید"
-          className="flex sm:hidden h-9 w-full items-center justify-center gap rounded-md bg-light-blue px-1 text-xs text-white shadow-sm cursor-pointer"
+          className="flex sm:hidden h-9 w-full items-center justify-center gap rounded-md bg-dark-blue px-1 text-xs text-white shadow-sm cursor-pointer"
         >
           <span className="text-nowrap">افزودن به سبد خرید</span>
           <Plus className="size-3 shrink-0" />

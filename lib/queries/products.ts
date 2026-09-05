@@ -12,11 +12,15 @@ const ORDER_BY: Record<SortOption, Record<string, "asc" | "desc">> = {
 };
 
 export async function getCategories(): Promise<CategoryDTO[]> {
-  const categories = await prisma.category.findMany({ orderBy: { sortOrder: "asc" } });
+  const categories = await prisma.category.findMany({
+    orderBy: { sortOrder: "asc" },
+  });
   return categories as unknown as CategoryDTO[];
 }
 
-export async function getCategoryBySlug(slug: string): Promise<CategoryDTO | null> {
+export async function getCategoryBySlug(
+  slug: string,
+): Promise<CategoryDTO | null> {
   const category = await prisma.category.findUnique({ where: { slug } });
   return category as unknown as CategoryDTO | null;
 }
@@ -24,7 +28,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDTO | nul
 export async function getFeaturedProducts(take = 4): Promise<ProductDTO[]> {
   const products = await prisma.product.findMany({
     where: { isPublished: true, isFeatured: true },
-    include: { category: true, images: true },
+    include: { category: true, images: true, colors: true },
     orderBy: { createdAt: "desc" },
     take,
   });
@@ -49,9 +53,12 @@ export type GetProductsResult = {
 
 export { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "../product-constants";
 
-export async function getProducts(options: GetProductsOptions = {}): Promise<GetProductsResult> {
+export async function getProducts(
+  options: GetProductsOptions = {},
+): Promise<GetProductsResult> {
   const { categorySlug, sort = "newest", query } = options;
-  const perPage = options.perPage && options.perPage > 0 ? options.perPage : DEFAULT_PER_PAGE;
+  const perPage =
+    options.perPage && options.perPage > 0 ? options.perPage : DEFAULT_PER_PAGE;
   const page = options.page && options.page > 0 ? options.page : 1;
   const trimmedQuery = query?.trim();
 
@@ -59,7 +66,12 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Get
     isPublished: true,
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
     ...(trimmedQuery
-      ? { OR: [{ name: { contains: trimmedQuery } }, { description: { contains: trimmedQuery } }] }
+      ? {
+          OR: [
+            { name: { contains: trimmedQuery } },
+            { description: { contains: trimmedQuery } },
+          ],
+        }
       : {}),
   };
 
@@ -85,7 +97,9 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Get
   };
 }
 
-export async function getProductBySlug(slug: string): Promise<ProductDetailDTO | null> {
+export async function getProductBySlug(
+  slug: string,
+): Promise<ProductDetailDTO | null> {
   const product = await prisma.product.findUnique({
     where: { slug, isPublished: true },
     include: {
@@ -94,7 +108,10 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailDTO |
       colors: { orderBy: { sortOrder: "asc" } },
       variants: {
         include: { size: true, color: true },
-        orderBy: [{ color: { sortOrder: "asc" } }, { size: { sortOrder: "asc" } }],
+        orderBy: [
+          { color: { sortOrder: "asc" } },
+          { size: { sortOrder: "asc" } },
+        ],
       },
     },
   });
@@ -104,7 +121,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailDTO |
 export async function getRelatedProducts(
   productId: string,
   categoryId: string,
-  take = 4
+  take = 4,
 ): Promise<ProductDTO[]> {
   const products = await prisma.product.findMany({
     where: {
@@ -118,14 +135,20 @@ export async function getRelatedProducts(
   return products as unknown as ProductDTO[];
 }
 
-export async function searchProducts(query: string, take = 8): Promise<ProductDTO[]> {
+export async function searchProducts(
+  query: string,
+  take = 8,
+): Promise<ProductDTO[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   const products = await prisma.product.findMany({
     where: {
       isPublished: true,
-      OR: [{ name: { contains: trimmed } }, { description: { contains: trimmed } }],
+      OR: [
+        { name: { contains: trimmed } },
+        { description: { contains: trimmed } },
+      ],
     },
     include: { category: true, images: true },
     take,

@@ -1,16 +1,5 @@
 import { prisma } from "@/lib/db";
 
-type OrderRow = {
-  id: string;
-  orderNumber: string;
-  status: string;
-  total: number;
-  subtotal: number;
-  shippingCost: number;
-  userId: string;
-  addressId: string;
-  createdAt: string | Date;
-};
 type UserRow = { id: string; name: string; email: string };
 type AddressRow = {
   id: string;
@@ -30,26 +19,118 @@ type OrderItemRow = {
   size?: string | null;
 };
 
-export async function getAllOrdersForAdmin() {
-  const [orders, users] = await Promise.all([
-    prisma.order.findMany({}) as unknown as Promise<OrderRow[]>,
-    prisma.user.findMany({}) as unknown as Promise<UserRow[]>,
-  ]);
-  const userById = new Map(users.map((u) => [u.id, u]));
+export type AdminOrderRow = {
+  id: string;
+  orderNumber: string;
+  status: string;
+  total: number;
+  subtotal: number;
+  shippingCost: number;
+  userId: string;
+  addressId: string;
+  createdAt: string | Date;
+  customer: UserRow | null;
+};
 
-  return orders
-    .map((o) => ({ ...o, customer: userById.get(o.userId) ?? null }))
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+export type AdminOrdersFilters = {
+  search?: string;
+  /** ISO date string "YYYY-MM-DD" (Gregorian) — matches what
+   * JalaliDatePicker produces. Matches the whole calendar day. */
+  date?: string;
+  page?: number;
+  perPage?: number;
+};
+
+export type AdminOrdersResult = {
+  orders: AdminOrderRow[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  perPage: number;
+};
+
+export const ADMIN_ORDERS_PER_PAGE = 10;
+
+export async function getAllOrdersForAdmin(
+  filters: AdminOrdersFilters = {},
+): Promise<AdminOrdersResult> {
+  const { search, date } = filters;
+  const page = filters.page && filters.page > 0 ? filters.page : 1;
+  const perPage =
+    filters.perPage && filters.perPage > 0
+      ? filters.perPage
+      : ADMIN_ORDERS_PER_PAGE;
+
+  let dateRange: { gte: Date; lt: Date } | undefined;
+  if (date) {
+    const startOfDay = new Date(`${date}T00:00:00`);
+    dateRange = {
+      gte: startOfDay,
+      lt: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000),
+    };
+  }
+
+  // Built once and reused for both findMany and count, so the total
+  // (and therefore totalPages) always matches exactly what's paginated.
+  // No `mode: "insensitive"` — that's Postgres-only and breaks on this
+  // project's SQLite/Turso database.
+  const where = {
+    ...(search
+      ? {
+          OR: [
+            { orderNumber: { contains: search } },
+            { user: { name: { contains: search } } },
+          ],
+        }
+      : {}),
+    ...(dateRange ? { createdAt: dateRange } : {}),
+  };
+
+  const [orders, totalCount] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      include: { user: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * perPage,
+      take: perPage,
+    }),
+    prisma.order.count({ where }),
+  ]);
+
+  return {
+    orders: (
+      orders as unknown as (AdminOrderRow & { user: UserRow | null })[]
+    ).map((o) => ({
+      ...o,
+      customer: o.user,
+    })),
+    totalCount,
+    totalPages: Math.max(1, Math.ceil(totalCount / perPage)),
+    page,
+    perPage,
+  };
 }
 
 export async function getOrderForAdmin(id: string) {
-  const order = (await prisma.order.findUnique({ where: { id } })) as OrderRow | null;
+  const order = (await prisma.order.findUnique({ where: { id } })) as {
+    id: string;
+    orderNumber: string;
+    status: string;
+    total: number;
+    subtotal: number;
+    shippingCost: number;
+    userId: string;
+    addressId: string;
+    createdAt: string | Date;
+  } | null;
   if (!order) return null;
 
   const [users, addresses, items] = await Promise.all([
     prisma.user.findMany({}) as unknown as Promise<UserRow[]>,
     prisma.address.findMany({}) as unknown as Promise<AddressRow[]>,
-    prisma.orderItem.findMany({ where: { orderId: id } }) as unknown as Promise<OrderItemRow[]>,
+    prisma.orderItem.findMany({ where: { orderId: id } }) as unknown as Promise<
+      OrderItemRow[]
+    >,
   ]);
 
   return {
