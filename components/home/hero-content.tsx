@@ -98,7 +98,10 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
           className="max-w-2xl"
         >
           {/* Eyebrow */}
-          <Badge variant="outline" className="mb-7 border-white py-1 text-white">
+          <Badge
+            variant="outline"
+            className="mb-7 border-white py-1 text-white"
+          >
             {hero.eyebrow}
           </Badge>
 
@@ -116,23 +119,12 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button
               size="m"
-              className="h-12 w-full rounded-full bg-white px-7 text-black hover:bg-white/90 sm:w-auto"
+              className="h-12 w-full rounded-full border border-white/30 bg-white/5 px-7 text-white backdrop-blur-sm hover:bg-white/10 hover:text-white sm:w-auto"
               asChild
             >
               <Link href={hero.ctaPrimary.href}>
                 {hero.ctaPrimary.label}
                 <ArrowLeft className="size-4" />
-              </Link>
-            </Button>
-
-            <Button
-              size="m"
-              variant="ghost"
-              className="h-12 w-full rounded-full border border-white/30 bg-white/5 px-7 text-white backdrop-blur-sm hover:bg-white/10 hover:text-white sm:w-auto"
-              asChild
-            >
-              <Link href={hero.ctaSecondary.href}>
-                {hero.ctaSecondary.label}
               </Link>
             </Button>
           </div>

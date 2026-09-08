@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouteTransition } from "@/components/shared/route-transition-provider";
 import { Search, X, Loader2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { buildProductsHref } from "@/lib/product-filters";
 
 export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
-  const router = useRouter();
+  const { push } = useRouteTransition();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(defaultValue);
   const [isPending, startTransition] = useTransition();
@@ -20,11 +21,14 @@ export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
   useEffect(() => {
     if (value === defaultValue) return;
     const timer = setTimeout(() => {
-      const href = buildProductsHref(new URLSearchParams(searchParams.toString()), {
-        q: value.trim() || undefined,
-        page: undefined,
-      });
-      startTransition(() => router.push(href));
+      const href = buildProductsHref(
+        new URLSearchParams(searchParams.toString()),
+        {
+          q: value.trim() || undefined,
+          page: undefined,
+        },
+      );
+      startTransition(() => push(href));
     }, 400);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -32,11 +36,14 @@ export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
 
   function handleClear() {
     setValue("");
-    const href = buildProductsHref(new URLSearchParams(searchParams.toString()), {
-      q: undefined,
-      page: undefined,
-    });
-    startTransition(() => router.push(href));
+    const href = buildProductsHref(
+      new URLSearchParams(searchParams.toString()),
+      {
+        q: undefined,
+        page: undefined,
+      },
+    );
+    startTransition(() => push(href));
   }
 
   return (
@@ -56,7 +63,11 @@ export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
           aria-label="پاک‌کردن جستجو"
           className="absolute end-3 top-1/2 flex -translate-y-1/2 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <X className="size-4" />
+          )}
         </button>
       )}
     </div>

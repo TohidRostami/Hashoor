@@ -2,39 +2,105 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ProductPlaceholder } from "@/components/shared/product-placeholder";
-import type { GarmentVariant } from "@/components/shared/garment-glyph";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice, toPersianDigits } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
-
-const KNOWN_VARIANTS: GarmentVariant[] = [
-  "shirts",
-  "tshirts",
-  "pants",
-  "outerwear",
-  "shoes",
-  "accessories",
-];
-function toGarmentVariant(slug: string): GarmentVariant {
-  return (KNOWN_VARIANTS as string[]).includes(slug) ? (slug as GarmentVariant) : "shirts";
-}
+import { getCartItemsStatus, applyDiscountCode } from "./actions";
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const items = useCartStore((s) => s.items);
-  console.log(items)
   const setQuantity = useCartStore((s) => s.setQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
+  const updatePrice = useCartStore((s) => s.updatePrice);
+  const discountCode = useCartStore((s) => s.discountCode);
+  const setDiscountCode = useCartStore((s) => s.setDiscountCode);
+
+  const [codeInput, setCodeInput] = useState("");
+  const [applying, setApplying] = useState(false);
+
+  // Reconciles the cached cart (from localStorage, possibly days old)
+  // against the live database exactly once per page load — removing
+  // anything no longer available, clamping quantities down to whatever
+  // stock actually remains, and syncing any price that's since changed.
+  // This runs only on mount, deliberately not whenever `items` changes,
+  // since setQuantity/updatePrice below would otherwise re-trigger it.
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+    let cancelled = false;
+
+    getCartItemsStatus(items.map((i) => ({ productId: i.productId, variantId: i.variantId }))).then(
+      (statuses) => {
+        if (cancelled) return;
+        const statusByVariant = new Map(statuses.map((s) => [s.variantId, s]));
+
+        for (const item of items) {
+          const status = statusByVariant.get(item.variantId);
+
+          if (!status || !status.available) {
+            removeItem(item.variantId);
+            toast.error(`«${item.name}» دیگر در دسترس نیست و از سبد خرید حذف شد.`);
+            continue;
+          }
+
+          if (status.stock < item.quantity) {
+            if (status.stock <= 0) {
+              removeItem(item.variantId);
+              toast.error(`موجودی «${item.name}» تمام شده و از سبد خرید حذف شد.`);
+            } else {
+              setQuantity(item.variantId, status.stock);
+              toast.error(
+                `موجودی «${item.name}» کاهش یافته — تعداد به ${toPersianDigits(status.stock)} تغییر کرد.`
+              );
+            }
+            continue;
+          }
+
+          if (status.price !== item.price) {
+            updatePrice(item.variantId, status.price);
+            toast(`قیمت «${item.name}» به‌روزرسانی شد.`);
+          }
+        }
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+    // Intentionally only [mounted] — see comment above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const discountAmount = discountCode
+    ? discountCode.type === "PERCENTAGE"
+      ? Math.round((subtotal * discountCode.value) / 100)
+      : Math.min(discountCode.value, subtotal)
+    : 0;
+  const payable = subtotal - discountAmount;
+
+  async function handleApplyDiscount() {
+    if (!codeInput.trim()) return;
+    setApplying(true);
+    const result = await applyDiscountCode(codeInput.trim(), subtotal);
+    setApplying(false);
+
+    if (!result.valid) {
+      toast.error(result.error);
+      return;
+    }
+    setDiscountCode({ id: result.id, code: result.code, type: result.type, value: result.value });
+    toast.success(`کد «${result.code}» با موفقیت اعمال شد.`);
+    setCodeInput("");
+  }
 
   if (!mounted) {
     return <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8" />;
@@ -89,6 +155,9 @@ export default function CartPage() {
                     {item.size && (
                       <p className="mt-1 text-xs text-muted-foreground">سایز: {item.size}</p>
                     )}
+                    {item.color && (
+                      <p className="mt-1 text-xs text-muted-foreground">رنگ: {item.color}</p>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -135,10 +204,35 @@ export default function CartPage() {
         <aside className="w-full shrink-0 rounded-lg border border-border p-6 lg:w-80">
           <h2 className="text-sm font-medium">خلاصه سفارش</h2>
 
-          <div className="mt-5 flex gap-2">
-            <Input placeholder="کد تخفیف" className="flex-1" />
-            <Button variant="outline">اعمال</Button>
-          </div>
+          {discountCode ? (
+            <div className="mt-5 flex items-center justify-between gap-2 rounded-md border border-dashed border-border px-3 py-2.5">
+              <span className="text-sm font-medium">
+                کد «{discountCode.code}» اعمال شد
+              </span>
+              <button
+                type="button"
+                onClick={() => setDiscountCode(null)}
+                aria-label="حذف کد تخفیف"
+                className="text-xs text-muted-foreground transition-colors hover:text-destructive"
+              >
+                حذف
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5 flex gap-2">
+              <Input
+                placeholder="کد تخفیف"
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleApplyDiscount()}
+                disabled={applying}
+                className="flex-1"
+              />
+              <Button variant="outline" onClick={handleApplyDiscount} disabled={applying || !codeInput.trim()}>
+                {applying ? "..." : "اعمال"}
+              </Button>
+            </div>
+          )}
 
           <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 text-sm">
             <div className="flex justify-between text-muted-foreground">
@@ -148,6 +242,12 @@ export default function CartPage() {
                 <span> تومان</span>
               </span>
             </div>
+            {discountCode && (
+              <div className="flex justify-between text-success">
+                <span>تخفیف</span>
+                <span>−{formatPrice(discountAmount)} تومان</span>
+              </div>
+            )}
             <div className="flex justify-between text-muted-foreground">
               <span>هزینه ارسال</span>
               <span>در مرحله بعد محاسبه می‌شود</span>
@@ -157,7 +257,7 @@ export default function CartPage() {
           <div className="mt-5 flex justify-between border-t border-border pt-5 text-base font-medium">
             <span>مبلغ قابل پرداخت</span>
             <span>
-              <span className="">{formatPrice(subtotal)}</span>
+              <span className="">{formatPrice(payable)}</span>
               <span> تومان</span>
             </span>
           </div>

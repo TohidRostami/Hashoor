@@ -1,11 +1,18 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouteTransition } from "@/components/shared/route-transition-provider";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function OrdersPagination({ page, totalPages }: { page: number; totalPages: number }) {
-  const router = useRouter();
+export function OrdersPagination({
+  page,
+  totalPages,
+}: {
+  page: number;
+  totalPages: number;
+}) {
+  const { push } = useRouteTransition();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -14,7 +21,7 @@ export function OrdersPagination({ page, totalPages }: { page: number; totalPage
   function goToPage(newPage: number) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(newPage));
-    router.push(`${pathname}?${params.toString()}`);
+    push(`${pathname}?${params.toString()}`);
   }
 
   return (
@@ -26,7 +33,7 @@ export function OrdersPagination({ page, totalPages }: { page: number; totalPage
         aria-label="صفحه‌ی قبل"
         className={cn(
           "flex size-8 items-center justify-center rounded-md border border-border text-foreground transition-colors",
-          page <= 1 ? "cursor-not-allowed opacity-30" : "hover:bg-secondary"
+          page <= 1 ? "cursor-not-allowed opacity-30" : "hover:bg-secondary",
         )}
       >
         <ChevronRight className="size-4" />
@@ -41,7 +48,9 @@ export function OrdersPagination({ page, totalPages }: { page: number; totalPage
         aria-label="صفحه‌ی بعد"
         className={cn(
           "flex size-8 items-center justify-center rounded-md border border-border text-foreground transition-colors",
-          page >= totalPages ? "cursor-not-allowed opacity-30" : "hover:bg-secondary"
+          page >= totalPages
+            ? "cursor-not-allowed opacity-30"
+            : "hover:bg-secondary",
         )}
       >
         <ChevronLeft className="size-4" />

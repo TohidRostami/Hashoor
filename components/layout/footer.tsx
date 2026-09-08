@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
-import { FaInstagram, FaTelegram } from 'react-icons/fa'
+import { FaInstagram, FaTelegram } from "react-icons/fa";
 import { Logo, WhiteLogo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/content";
@@ -16,7 +16,6 @@ export function SiteFooter() {
   return (
     <footer className="m-4 rounded-3xl bg-[#B59E7D] shadow-lg">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
         <div className="grid grid-cols-2 gap-10 py-12 sm:grid-cols-2 md:grid-cols-5">
           <div className="col-span-2 flex flex-col items-start gap-4">
             <WhiteLogo />
@@ -28,13 +27,13 @@ export function SiteFooter() {
                 href={siteConfig.social.instagram}
                 className="text-white underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
-                <FaInstagram size={30}/>
+                <FaInstagram size={30} />
               </Link>
               <Link
                 href={siteConfig.social.telegram}
                 className="text-white underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
-               <FaTelegram size={30}/>
+                <FaTelegram size={30} />
               </Link>
             </div>
           </div>

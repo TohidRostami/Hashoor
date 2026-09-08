@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouteTransition } from "@/components/shared/route-transition-provider";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,7 @@ export function MobileProductFilters({
   activeCategorySlug?: string;
   activeSort: SortOption;
 }) {
-  const router = useRouter();
+  const { push } = useRouteTransition();
   const searchParams = useSearchParams();
 
   function go(overrides: Record<string, string | undefined>) {
@@ -36,7 +37,7 @@ export function MobileProductFilters({
         page: undefined,
       },
     );
-    router.push(href);
+    push(href);
   }
 
   return (

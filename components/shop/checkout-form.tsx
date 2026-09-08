@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice, toPersianDigits } from "@/lib/format";
+import { computeDiscountAmount } from "@/lib/discount-calc";
 import { cn } from "@/lib/utils";
 import { placeOrder } from "@/app/(shop)/checkout/actions";
 
@@ -22,6 +23,7 @@ export function CheckoutForm({
   useEffect(() => setMounted(true), []);
 
   const items = useCartStore((s) => s.items);
+  const discountCode = useCartStore((s) => s.discountCode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -34,6 +36,10 @@ export function CheckoutForm({
   });
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const discountAmount = discountCode
+    ? computeDiscountAmount(discountCode.type, discountCode.value, subtotal)
+    : 0;
+  const payable = subtotal - discountAmount;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -46,7 +52,8 @@ export function CheckoutForm({
         variantId: i.variantId,
         quantity: i.quantity,
       })),
-      form
+      form,
+      discountCode?.code ?? null,
     );
 
     if ("error" in result) {
@@ -71,7 +78,10 @@ export function CheckoutForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-10 lg:grid-cols-5">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 gap-10 lg:grid-cols-5"
+    >
       <div className="flex flex-col gap-5 lg:col-span-3">
         <h2 className="text-sm font-medium">آدرس تحویل</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -111,7 +121,9 @@ export function CheckoutForm({
             required
             rows={3}
             value={form.addressLine}
-            onChange={(e) => setForm((f) => ({ ...f, addressLine: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, addressLine: e.target.value }))
+            }
             className="rounded-md border border-input bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
           />
         </div>
@@ -121,20 +133,46 @@ export function CheckoutForm({
         <h2 className="text-sm font-medium">خلاصه سفارش</h2>
         <ul className="mt-4 flex flex-col gap-3">
           {items.map((item) => (
-            <li key={item.variantId} className="flex justify-between gap-3 text-sm">
+            <li
+              key={item.variantId}
+              className="flex justify-between gap-3 text-sm"
+            >
               <span className="text-muted-foreground">
                 {item.name}
                 {item.size && ` (${item.size})`}
-                <span className="pr-1"> × {toPersianDigits(item.quantity)}</span>
+                <span className="pr-1">
+                  {" "}
+                  × {toPersianDigits(item.quantity)}
+                </span>
               </span>
-              <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>
+              <span className="shrink-0">
+                {formatPrice(item.price * item.quantity)}
+              </span>
             </li>
           ))}
         </ul>
+
+        <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4 text-sm">
+          <div className="flex justify-between text-muted-foreground">
+            <span>جمع جزء</span>
+            <span>
+              <span className="text-foreground">{formatPrice(subtotal)}</span>
+              <span> تومان</span>
+            </span>
+          </div>
+
+          {discountCode && (
+            <div className="flex justify-between text-success">
+              <span>تخفیف ({discountCode.code})</span>
+              <span>−{formatPrice(discountAmount)} تومان</span>
+            </div>
+          )}
+        </div>
+
         <div className="mt-4 flex justify-between border-t border-border pt-4 text-base font-medium">
-          <span>جمع جزء</span>
+          <span>مبلغ قابل پرداخت</span>
           <span>
-            <span>{formatPrice(subtotal)}</span>
+            <span>{formatPrice(payable)}</span>
             <span> تومان</span>
           </span>
         </div>
@@ -144,7 +182,12 @@ export function CheckoutForm({
 
         {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
 
-        <Button type="submit" size="lg" disabled={loading} className="mt-6 w-full">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading}
+          className="mt-6 w-full"
+        >
           {loading ? "در حال ثبت سفارش..." : "ادامه به درگاه پرداخت"}
         </Button>
       </aside>
@@ -168,7 +211,12 @@ function Field({
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <Label>{label}</Label>
-      <Input dir={dir} required value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input
+        dir={dir}
+        required
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }

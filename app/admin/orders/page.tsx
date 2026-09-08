@@ -18,6 +18,7 @@ import { getAllOrdersForAdmin } from "@/lib/queries/admin-orders";
 import { formatPrice } from "@/lib/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_TONE } from "@/lib/order-status";
 import { formatJalali } from "@/lib/date";
+import { TransitionRegion } from "@/components/shared/transition-region";
 
 export const metadata: Metadata = { title: "سفارش‌ها | پنل مدیریت" };
 
@@ -71,49 +72,51 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
           </p>
         ) : (
           <>
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-center">سفارش</TableHead>
-                  <TableHead className="text-center">مشتری</TableHead>
-                  <TableHead className="text-center">وضعیت</TableHead>
-                  <TableHead className="text-center">تاریخ سفارش</TableHead>
-                  <TableHead className="text-center">مبلغ</TableHead>
-                  <TableHead className="text-center">عملیات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="text-center">
-                      <span className="">{order.orderNumber}</span>
-                    </TableCell>
-                    <TableCell className="text-center text-muted-foreground">
-                      {order.customer?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge className={ORDER_STATUS_TONE[order.status]}>
-                        {ORDER_STATUS_LABELS[order.status] ?? order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center ">
-                      {formatJalali(order.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-center ">
-                      {formatPrice(order.total)}
-                    </TableCell>
-                    <TableCell className="pe-6 text-center">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="text-sm text-accent-2 hover:underline"
-                      >
-                        مشاهده
-                      </Link>
-                    </TableCell>
+            <TransitionRegion className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="text-center">سفارش</TableHead>
+                    <TableHead className="text-center">مشتری</TableHead>
+                    <TableHead className="text-center">وضعیت</TableHead>
+                    <TableHead className="text-center">تاریخ سفارش</TableHead>
+                    <TableHead className="text-center">مبلغ</TableHead>
+                    <TableHead className="text-center">عملیات</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="text-center">
+                        <span className="">{order.orderNumber}</span>
+                      </TableCell>
+                      <TableCell className="text-center text-muted-foreground">
+                        {order.customer?.name ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge className={ORDER_STATUS_TONE[order.status]}>
+                          {ORDER_STATUS_LABELS[order.status] ?? order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center ">
+                        {formatJalali(order.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-center ">
+                        {formatPrice(order.total)}
+                      </TableCell>
+                      <TableCell className="pe-6 text-center">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="text-sm text-accent-2 hover:underline"
+                        >
+                          مشاهده
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TransitionRegion>
 
             <div className="flex flex-col items-center justify-between gap-3 border-t border-border p-4 sm:flex-row">
               <OrdersPerPageSelect perPage={currentPerPage} />

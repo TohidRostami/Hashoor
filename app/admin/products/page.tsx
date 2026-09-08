@@ -21,6 +21,8 @@ import { getAllProductsForAdmin } from "@/lib/queries/admin-products";
 import { getCategories } from "@/lib/queries/products";
 import { formatPrice, toPersianDigits } from "@/lib/format";
 import { AdminProductsPerPageSelect } from "@/components/admin/products-per-page-select";
+import { TransitionRegion } from "@/components/shared/transition-region";
+import { TransitionLink } from "@/components/shared/transition-link";
 
 export const metadata: Metadata = {
   title: "محصولات | پنل مدیریت",
@@ -90,10 +92,10 @@ export default async function AdminProductsPage({
         </div>
 
         <Button asChild>
-          <Link href="/admin/products/new">
+          <TransitionLink href="/admin/products/new">
             <Plus className="size-4" />
             محصول جدید
-          </Link>
+          </TransitionLink>
         </Button>
       </div>
 
@@ -105,72 +107,74 @@ export default async function AdminProductsPage({
       </div>
       {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="ps-6 text-center">نام</TableHead>
+        <TransitionRegion className="overflow-x-auto rounded-lg border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="ps-6 text-center">نام</TableHead>
 
-              <TableHead className="ps-6 text-center">دسته‌بندی</TableHead>
+                <TableHead className="ps-6 text-center">دسته‌بندی</TableHead>
 
-              <TableHead className="ps-6 text-center">قیمت</TableHead>
+                <TableHead className="ps-6 text-center">قیمت</TableHead>
 
-              <TableHead className="ps-6 text-center">وضعیت</TableHead>
+                <TableHead className="ps-6 text-center">وضعیت</TableHead>
 
-              <TableHead className="ps-6 text-center">عملیات</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {products.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="h-32 text-center text-muted-foreground"
-                >
-                  محصولی با این مشخصات پیدا نشد.
-                </TableCell>
+                <TableHead className="ps-6 text-center">عملیات</TableHead>
               </TableRow>
-            ) : (
-              products.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="ps-6 text-center font-medium">
-                    {p.name}
-                  </TableCell>
+            </TableHeader>
 
-                  <TableCell className="text-center text-muted-foreground">
-                    {p.category.title}
-                  </TableCell>
-
-                  <TableCell className=" text-center">
-                    {formatPrice(p.price)}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-center gap-1.5">
-                      <Badge variant={p.isPublished ? "default" : "outline"}>
-                        {p.isPublished ? "منتشرشده" : "پیش‌نویس"}
-                      </Badge>
-
-                      {p.isFeatured && <Badge variant="accent">ویژه</Badge>}
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="pe-6">
-                    <div className="flex justify-center gap-1">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/admin/products/${p.id}/edit`}>
-                          ویرایش
-                        </Link>
-                      </Button>
-
-                      <DeleteProductButton id={p.id} name={p.name} />
-                    </div>
+            <TableBody>
+              {products.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-32 text-center text-muted-foreground"
+                  >
+                    محصولی با این مشخصات پیدا نشد.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                products.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="ps-6 text-center font-medium">
+                      {p.name}
+                    </TableCell>
+
+                    <TableCell className="text-center text-muted-foreground">
+                      {p.category.title}
+                    </TableCell>
+
+                    <TableCell className=" text-center">
+                      {formatPrice(p.price)}
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex justify-center gap-1.5">
+                        <Badge variant={p.isPublished ? "default" : "outline"}>
+                          {p.isPublished ? "منتشرشده" : "پیش‌نویس"}
+                        </Badge>
+
+                        {p.isFeatured && <Badge variant="accent">ویژه</Badge>}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="pe-6">
+                      <div className="flex justify-center gap-1">
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/admin/products/${p.id}/edit`}>
+                            ویرایش
+                          </Link>
+                        </Button>
+
+                        <DeleteProductButton id={p.id} name={p.name} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TransitionRegion>
       </div>
 
       <AdminProductsPagination

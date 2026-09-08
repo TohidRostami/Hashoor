@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { buildProductsHref } from "@/lib/product-filters";
 import { cn } from "@/lib/utils";
 import { toPersianDigits } from "@/lib/format";
+import { TransitionLink } from "../shared/transition-link";
 
 /** Builds a compact page list with ellipses, e.g. 1 … 4 5 [6] 7 8 … 20 */
 function getPageList(current: number, total: number): (number | "gap")[] {
@@ -95,7 +95,7 @@ function PageLink({
     );
   }
   return (
-    <Link
+    <TransitionLink
       href={href}
       className={cn(
         "flex size-9 items-center justify-center rounded-md text-sm transition-colors",
@@ -106,6 +106,6 @@ function PageLink({
       {...props}
     >
       {children}
-    </Link>
+    </TransitionLink>
   );
 }

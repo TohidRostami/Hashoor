@@ -1,11 +1,11 @@
-import Link from "next/link";
+import { TransitionLink } from "@/components/shared/transition-link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toPersianDigits } from "@/lib/format";
 
 function buildAdminProductsHref(
   current: URLSearchParams,
-  overrides: Record<string, string | undefined>
+  overrides: Record<string, string | undefined>,
 ): string {
   const params = new URLSearchParams(current.toString());
   for (const [key, value] of Object.entries(overrides)) {
@@ -19,7 +19,9 @@ function buildAdminProductsHref(
 /** Compact page list with ellipses, e.g. 1 … 4 5 [6] 7 8 … 20 */
 function getPageList(current: number, total: number): (number | "gap")[] {
   const pages = new Set<number>([1, total, current, current - 1, current + 1]);
-  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const sorted = [...pages]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
 
   const result: (number | "gap")[] = [];
   for (let i = 0; i < sorted.length; i++) {
@@ -42,24 +44,36 @@ export function AdminProductsPagination({
 
   const pages = getPageList(currentPage, totalPages);
   const hrefFor = (page: number) =>
-    buildAdminProductsHref(currentParams, { page: page === 1 ? undefined : String(page) });
+    buildAdminProductsHref(currentParams, {
+      page: page === 1 ? undefined : String(page),
+    });
 
   return (
-    <nav aria-label="صفحه‌بندی محصولات" className="flex items-center justify-center gap-1.5 py-2">
-      <PageLink href={hrefFor(Math.max(1, currentPage - 1))} disabled={currentPage === 1} aria-label="صفحه قبل">
+    <nav
+      aria-label="صفحه‌بندی محصولات"
+      className="flex items-center justify-center gap-1.5 py-2"
+    >
+      <PageLink
+        href={hrefFor(Math.max(1, currentPage - 1))}
+        disabled={currentPage === 1}
+        aria-label="صفحه قبل"
+      >
         <ChevronRight className="size-4" />
       </PageLink>
 
       {pages.map((p, i) =>
         p === "gap" ? (
-          <span key={`gap-${i}`} className="px-1.5 text-sm text-muted-foreground">
+          <span
+            key={`gap-${i}`}
+            className="px-1.5 text-sm text-muted-foreground"
+          >
             …
           </span>
         ) : (
           <PageLink key={p} href={hrefFor(p)} active={p === currentPage}>
             <span>{toPersianDigits(p)}</span>
           </PageLink>
-        )
+        ),
       )}
 
       <PageLink
@@ -93,15 +107,17 @@ function PageLink({
     );
   }
   return (
-    <Link
+    <TransitionLink
       href={href}
       className={cn(
         "flex size-9 items-center justify-center rounded-md text-sm transition-colors",
-        active ? "bg-foreground text-background" : "text-foreground/80 hover:bg-secondary hover:text-foreground"
+        active
+          ? "bg-foreground text-background"
+          : "text-foreground/80 hover:bg-secondary hover:text-foreground",
       )}
       {...props}
     >
       {children}
-    </Link>
+    </TransitionLink>
   );
 }

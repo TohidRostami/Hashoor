@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouteTransition } from "@/components/shared/route-transition-provider";
 import {
   Select,
   SelectContent,
@@ -13,7 +14,7 @@ import { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "@/lib/product-constants";
 import { toPersianDigits } from "@/lib/format";
 
 export function PerPageSelect({ value }: { value: number }) {
-  const router = useRouter();
+  const { push } = useRouteTransition();
   const searchParams = useSearchParams();
 
   function handleChange(next: string) {
@@ -24,7 +25,7 @@ export function PerPageSelect({ value }: { value: number }) {
         page: undefined,
       },
     );
-    router.push(href);
+    push(href);
   }
 
   return (

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Wallet, ShoppingBag, Package, Users } from "lucide-react";
 
 import { StatCard } from "@/components/admin/stat-card";
-import { RecentOrdersTable } from "@/components/admin/recent-orders-table";
 import { OutOfStockCard } from "@/components/admin/out-of-stock-card";
 import { getDashboardStats, getRecentOrders } from "@/lib/queries/admin";
 import { getOutOfStockProducts } from "@/lib/queries/admin-inventory";

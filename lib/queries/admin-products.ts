@@ -88,7 +88,9 @@ export async function getAllProductsForAdmin(
   };
 }
 
-export async function getProductForEdit(id: string): Promise<ProductDetailDTO | null> {
+export async function getProductForEdit(
+  id: string,
+): Promise<ProductDetailDTO | null> {
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
@@ -97,7 +99,10 @@ export async function getProductForEdit(id: string): Promise<ProductDetailDTO | 
       colors: { orderBy: { sortOrder: "asc" } },
       variants: {
         include: { size: true, color: true },
-        orderBy: [{ color: { sortOrder: "asc" } }, { size: { sortOrder: "asc" } }],
+        orderBy: [
+          { color: { sortOrder: "asc" } },
+          { size: { sortOrder: "asc" } },
+        ],
       },
     },
   });

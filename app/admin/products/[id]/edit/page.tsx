@@ -27,21 +27,3 @@ export default async function EditProductPage({
     </div>
   );
 }
-{/* <Input
-                        type="number"
-                        dir="ltr"
-                        min={0}
-                        value={variantStocks[s.id]}
-                        onChange={(e) =>
-                          setVariantStocks((prev) => ({
-                            ...prev,
-                            [s.id]: Number(e.target.value),
-                          }))
-                        }
-                        className="
-    h-8 w-12 shrink-0 px-1 text-center
-    appearance-none
-    [&::-webkit-inner-spin-button]:appearance-none
-    [&::-webkit-outer-spin-button]:appearance-none
-  "
-                      /> */}

@@ -15,6 +15,8 @@ import {
 import { buildProductsHref } from "@/lib/product-filters";
 import { cn } from "@/lib/utils";
 import { toPersianDigits } from "@/lib/format";
+import { TransitionLink } from "@/components/shared/transition-link";
+import { TransitionRegion } from "@/components/shared/transition-region";
 
 export const metadata: Metadata = { title: "محصولات" };
 
@@ -90,7 +92,7 @@ export default async function ProductsPage({
             دسته‌بندی
           </h2>
           <nav className="flex flex-col items-start gap-0.5">
-            <Link
+            <TransitionLink
               href={buildProductsHref(currentParams, {
                 category: undefined,
                 page: undefined,
@@ -103,9 +105,9 @@ export default async function ProductsPage({
               )}
             >
               همه محصولات
-            </Link>
+            </TransitionLink>
             {categories.map((c) => (
-              <Link
+              <TransitionLink
                 key={c.slug}
                 href={buildProductsHref(currentParams, {
                   category: c.slug,
@@ -119,7 +121,7 @@ export default async function ProductsPage({
                 )}
               >
                 {c.title}
-              </Link>
+              </TransitionLink>
             ))}
           </nav>
         </aside>
@@ -130,7 +132,7 @@ export default async function ProductsPage({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">مرتب‌سازی:</span>
               {SORTS.map((s) => (
-                <Link
+                <TransitionLink
                   key={s.value}
                   href={buildProductsHref(currentParams, {
                     sort: s.value === "newest" ? undefined : s.value,
@@ -144,7 +146,7 @@ export default async function ProductsPage({
                   )}
                 >
                   {s.label}
-                </Link>
+                </TransitionLink>
               ))}
             </div>
             <PerPageSelect value={perPage} />
@@ -162,11 +164,13 @@ export default async function ProductsPage({
             </p>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <TransitionRegion className="rounded-2xl">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TransitionRegion>
               <ProductsPagination
                 currentPage={currentPage}
                 totalPages={totalPages}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouteTransition } from "@/components/shared/route-transition-provider";
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ const PER_PAGE_OPTIONS = [4, 8, 10, 25, 50, 100];
 const DEFAULT_PER_PAGE = 10;
 
 export function AdminProductsPerPageSelect({ value }: { value: number }) {
-  const router = useRouter();
+  const { push } = useRouteTransition();
   const searchParams = useSearchParams();
 
   function handleChange(next: string) {
@@ -30,7 +31,7 @@ export function AdminProductsPerPageSelect({ value }: { value: number }) {
     // no longer make sense once the page size changes.
     params.delete("page");
 
-    router.push(`/admin/products?${params.toString()}`);
+    push(`/admin/products?${params.toString()}`);
   }
 
   return (

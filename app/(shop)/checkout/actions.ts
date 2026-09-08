@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { generateOrderNumber, initiatePayment } from "@/lib/payment";
 import { getSiteSettings } from "@/lib/queries/settings";
 import { syncProductInStock } from "@/lib/inventory";
+import { validateDiscountCode } from "@/lib/discount";
 
 export type CheckoutItem = {
   productId: string;
@@ -29,6 +30,7 @@ export type PlaceOrderResult =
 export async function placeOrder(
   items: CheckoutItem[],
   address: AddressInput,
+  discountCode?: string | null,
 ): Promise<PlaceOrderResult> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
@@ -103,6 +105,22 @@ export async function placeOrder(
     });
   }
 
+  // Re-validated from scratch here — never trust whatever discount
+  // amount the cart page previewed. Checked *before* the stock
+  // reservation below, not after: if this were checked afterward and
+  // failed, the transaction's stock decrements would already be
+  // committed with no order ever created to justify them.
+  let discountAmount = 0;
+  let discountCodeId: string | null = null;
+  if (discountCode) {
+    const result = await validateDiscountCode(discountCode, subtotal);
+    if (!result.valid) {
+      return { error: result.error };
+    }
+    discountAmount = result.discountAmount;
+    discountCodeId = result.id;
+  }
+
   // Reserve stock for every variant item in one all-or-nothing
   // transaction: each decrement is guarded by `version`, so if another
   // checkout modifies the same variant in between our read and write,
@@ -157,7 +175,7 @@ export async function placeOrder(
     settings.freeShippingThreshold != null &&
     subtotal >= settings.freeShippingThreshold;
   const shippingCost = freeShippingMet ? 0 : settings.standardShippingCost;
-  const total = subtotal + shippingCost;
+  const total = subtotal + shippingCost - discountAmount;
 
   const createdAddress = (await prisma.address.create({
     data: { ...address, userId: session.user.id },
@@ -169,10 +187,19 @@ export async function placeOrder(
       userId: session.user.id,
       addressId: createdAddress.id,
       subtotal,
+      discountAmount,
+      discountCodeId,
       shippingCost,
       total,
     },
   })) as { id: string; orderNumber: string };
+
+  if (discountCodeId) {
+    await prisma.discountCode.update({
+      where: { id: discountCodeId },
+      data: { usedCount: { increment: 1 } },
+    });
+  }
 
   for (const item of orderItemsData) {
     await prisma.orderItem.create({ data: { orderId: order.id, ...item } });
@@ -211,6 +238,10 @@ export async function completeSimulatedPayment(
 
   // Payment failed — release the stock that was reserved for this order
   // so it doesn't stay locked away from other customers.
+  const order = (await prisma.order.findUnique({ where: { id: orderId } })) as {
+    discountCodeId: string | null;
+  } | null;
+
   const items = (await prisma.orderItem.findMany({ where: { orderId } })) as {
     productId: string;
     variantId: string | null;
@@ -231,6 +262,16 @@ export async function completeSimulatedPayment(
   const affectedProductIds = new Set(items.map((i) => i.productId));
   for (const productId of affectedProductIds) {
     await syncProductInStock(prisma, productId);
+  }
+
+  // Same reasoning as the stock release above — a failed payment never
+  // became a real order, so the discount code's limited uses shouldn't
+  // be spent on it either.
+  if (order?.discountCodeId) {
+    await prisma.discountCode.update({
+      where: { id: order.discountCodeId },
+      data: { usedCount: { decrement: 1 } },
+    });
   }
 
   await prisma.order.update({
