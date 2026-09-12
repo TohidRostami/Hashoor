@@ -4,15 +4,20 @@ import { Wallet, ShoppingBag, Package, Users } from "lucide-react";
 import { StatCard } from "@/components/admin/stat-card";
 import { OutOfStockCard } from "@/components/admin/out-of-stock-card";
 import { getDashboardStats, getRecentOrders } from "@/lib/queries/admin";
-import { getOutOfStockProducts } from "@/lib/queries/admin-inventory";
+import {
+  getLowStockProducts,
+  getOutOfStockProducts,
+} from "@/lib/queries/admin-inventory";
 import { formatPrice } from "@/lib/format";
+import { LowStockCard } from "@/components/admin/low-stock-card";
 
 export const metadata: Metadata = { title: "داشبورد | پنل مدیریت" };
 
 export default async function AdminDashboardPage() {
-  const [stats, outOfStockProducts] = await Promise.all([
+  const [stats, outOfStockProducts, lowStockProducts] = await Promise.all([
     getDashboardStats(),
     getOutOfStockProducts(),
+    getLowStockProducts(),
   ]);
 
   return (
@@ -45,6 +50,8 @@ export default async function AdminDashboardPage() {
       </div>
 
       <OutOfStockCard products={outOfStockProducts} />
+
+      <LowStockCard products={lowStockProducts} />
     </div>
   );
 }

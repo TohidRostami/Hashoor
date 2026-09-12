@@ -35,6 +35,7 @@
     "mobile": "0912-000-0000",
     "email": "info@hashor.ir",
     "address": "تهران، خیابان نمونه، پلاک ۰",
+    "mapUrl": "https://maps.app.goo.gl/QKrxhKi6em3n756Z7",
     "workingHours": "شنبه تا پنج‌شنبه، ۹ تا ۱۸"
   },
   "social": {
@@ -47,8 +48,8 @@
       { "label": "خانه", "href": "/" },
       { "label": "محصولات", "href": "/products" },
       { "label": "دسته بندی محصولات", "href": "/categories" },
-      { "label": "درباره ما", "href": "/about" },
-      { "label": "تماس با ما", "href": "/contact" }
+      { "label": "تماس با ما", "href": "/contact" },
+      { "label": "درباره ما", "href": "/about" }
     ],
     "footerColumns": [
       {

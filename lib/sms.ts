@@ -1,44 +1,101 @@
-type SendSmsResult = { success: boolean };
-
 /**
- * SMS provider abstraction — the one seam to touch when connecting a real
- * provider (Kavenegar / Ghasedak / SMS.ir / ...), matching how the payment
- * gateway is wired later (see lib/payment/).
+ * SMS OTP delivery via sms.ir's Verify (template-based) send API — the
+ * endpoint sms.ir specifically built for one-time codes, distinct from
+ * their general-purpose bulk SMS sending. Reimplemented here with
+ * native fetch rather than added as a dependency (the "sms-typescript"
+ * package is just a thin wrapper around one fetch call) — the exact
+ * base URL, endpoint path, and header name below were confirmed
+ * directly from that package's own source code, not guessed.
  *
- * Until SMS_PROVIDER_API_KEY is set, OTP codes are only logged to the
- * server console — safe for local development, no SMS account needed.
+ * POST https://api.sms.ir/v1/send/verify/
+ *
+ * Setup on sms.ir's side (one-time, in their panel):
+ *   1. برنامه‌نویسان ← قالب‌های ماژول ارسال سریع ← افزودن قالب
+ *   2. متن قالب باید یک متغیر با # دورش داشته باشد، مثلاً:
+ *      «کد ورود شما به هاشور: #code# است.»
+ *   3. منتظر تأیید کارشناسان سامانه پیامک بمانید (چند دقیقه تا چند ساعت).
+ *   4. بعد از تأیید، شناسه‌ی قالب (عدد قرمزرنگ انتهای قالب) را بردارید.
+ *   5. کلید API را از «برنامه‌نویسان ← کلید وب‌سرویس» بردارید.
+ *
+ * Until SMSIR_API_KEY is set, OTP codes are only logged to the server
+ * console — safe for local development, no SMS account or cost involved.
  */
-async function sendSms(to: string, text: string): Promise<SendSmsResult> {
-  const apiKey = process.env.SMS_PROVIDER_API_KEY;
 
-  if (!apiKey) {
-    console.log(`[SMS · DEV MODE] → ${to}: ${text}`);
-    return { success: true };
-  }
+const SMSIR_BASE_URL = "https://api.sms.ir";
 
-  // Replace this block with the chosen provider's real API call. Example
-  // shape for Kavenegar (https://kavenegar.com/rest.html):
-  //
-  //   const res = await fetch(
-  //     `https://api.kavenegar.com/v1/${apiKey}/sms/send.json`,
-  //     {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  //       body: new URLSearchParams({
-  //         receptor: to,
-  //         sender: process.env.SMS_PROVIDER_SENDER ?? "",
-  //         message: text,
-  //       }),
-  //     }
-  //   );
-  //   return { success: res.ok };
+type SendOtpResult = { success: boolean };
 
-  console.warn(
-    "SMS_PROVIDER_API_KEY تنظیم شده ولی پیاده‌سازی واقعی سرویس هنوز در lib/sms.ts اضافه نشده."
+function isConfigured(): boolean {
+  return Boolean(
+    process.env.SMSIR_API_KEY && process.env.SMSIR_VERIFY_TEMPLATE_ID,
   );
-  return { success: false };
 }
 
-export async function sendOtpSms(phoneNumber: string, code: string) {
-  return sendSms(phoneNumber, `کد ورود شما به هاشور: ${code}`);
+// sms.ir expects a local-format number (09xxxxxxxxx), not E.164 — the
+// rest of the app normalizes to +98 for storage/auth, so this is the
+// one place that converts back for the provider's expected format.
+function toLocalFormat(e164Phone: string): string {
+  const digits = e164Phone.replace(/\D/g, "");
+  if (digits.startsWith("98")) return `0${digits.slice(2)}`;
+  return digits.startsWith("0") ? digits : `0${digits}`;
+}
+
+async function sendViaSmsIr(
+  phoneNumber: string,
+  code: string,
+): Promise<SendOtpResult> {
+  const apiKey = process.env.SMSIR_API_KEY!;
+  const templateId = Number(process.env.SMSIR_VERIFY_TEMPLATE_ID);
+  // Must exactly match the variable name used inside the template's
+  // #...# placeholder in the sms.ir panel (defaults to "code").
+  const paramName = process.env.SMSIR_VERIFY_PARAM_NAME || "code";
+
+  try {
+    const res = await fetch(`${SMSIR_BASE_URL}/v1/send/verify/`, {
+      method: "POST",
+      headers: {
+        "X-API-KEY": apiKey,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mobile: toLocalFormat(phoneNumber),
+        templateId,
+        parameters: [{ name: paramName, value: code }],
+      }),
+    });
+
+    if (!res.ok) {
+      const errorBody = (await res.json().catch(() => null)) as {
+        message?: string;
+      } | null;
+      // Logged server-side for debugging, but the code itself is never
+      // included, and the caller only ever sees a plain success/failure
+      // boolean.
+      console.error(
+        `[sms.ir] send failed — HTTP ${res.status}: ${errorBody?.message ?? "unknown error"}`,
+      );
+      return { success: false };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error(
+      "[sms.ir] request failed:",
+      err instanceof Error ? err.message : err,
+    );
+    return { success: false };
+  }
+}
+
+export async function sendOtpSms(
+  phoneNumber: string,
+  code: string,
+): Promise<SendOtpResult> {
+  if (!isConfigured()) {
+    // Dev-mode fallback only — never reached once real credentials are
+    // set, so the code is never written anywhere once this is live.
+    console.log(`[SMS · DEV MODE] → ${phoneNumber}: کد ${code}`);
+    return { success: true };
+  }
+  return sendViaSmsIr(phoneNumber, code);
 }

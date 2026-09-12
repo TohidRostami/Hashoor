@@ -23,6 +23,7 @@ export type SiteConfig = {
     mobile: string;
     email: string;
     address: string;
+    mapUrl: string;
     workingHours: string;
   };
   social: Record<string, string>;
