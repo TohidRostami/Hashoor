@@ -33,6 +33,12 @@ export function MobileProductFilters({
     const href = buildProductsHref(
       new URLSearchParams(searchParams.toString()),
       {
+        // Category now lives in the path, not the query string, so it
+        // can't be read back from `searchParams` here — passed
+        // explicitly so it survives sort changes. Any explicit
+        // `category` in `overrides` (the category selector itself)
+        // still wins, since it's spread after this default.
+        category: activeCategorySlug,
         ...overrides,
         page: undefined,
       },

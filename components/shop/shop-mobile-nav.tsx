@@ -18,6 +18,7 @@ import {
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
 import type { CategoryDTO } from "@/lib/types";
+import { motion, AnimatePresence } from "motion/react";
 
 const NAV_BEFORE_CATEGORIES = [
   { href: "/", label: "خانه", icon: House, exact: true },
@@ -96,20 +97,30 @@ export function ShopMobileNav({
             />
           </button>
 
-          {categoriesOpen && (
-            <div className="flex flex-col gap-0.5 py-1 ps-7">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/products?category=${cat.slug}`}
-                  onClick={onNavigate}
-                  className="rounded-md px-3 py-2 text-sm text-black/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-                >
-                  {cat.title}
-                </Link>
-              ))}
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {categoriesOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-col gap-0.5 py-1 ps-7">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/products/category/${cat.slug}`}
+                      onClick={onNavigate}
+                      className="rounded-md px-3 py-2 text-sm text-black/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                    >
+                      {cat.title}
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {NAV_AFTER_CATEGORIES.map(renderNavLink)}
         </div>

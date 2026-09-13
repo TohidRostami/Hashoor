@@ -13,7 +13,7 @@ import { buildProductsHref } from "@/lib/product-filters";
 import { PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from "@/lib/product-constants";
 import { toPersianDigits } from "@/lib/format";
 
-export function PerPageSelect({ value }: { value: number }) {
+export function PerPageSelect({ value, categorySlug }: { value: number; categorySlug?: string }) {
   const { push } = useRouteTransition();
   const searchParams = useSearchParams();
 
@@ -21,6 +21,9 @@ export function PerPageSelect({ value }: { value: number }) {
     const href = buildProductsHref(
       new URLSearchParams(searchParams.toString()),
       {
+        // See mobile-product-filters.tsx — category lives in the path
+        // now, so it has to be threaded through explicitly.
+        category: categorySlug,
         perPage: Number(next) === DEFAULT_PER_PAGE ? undefined : next,
         page: undefined,
       },

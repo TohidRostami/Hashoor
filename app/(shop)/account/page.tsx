@@ -13,15 +13,9 @@ export default async function AccountDashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session!.user.id;
 
-  const [orders, favoriteCount] = await Promise.all([
-    getOrdersForCustomer(userId),
-    Promise.resolve(0), // علاقه‌مندی‌ها فقط سمت مرورگر است — تعداد واقعی در کامپوننت کلاینت صفحه favorites نمایش داده می‌شود.
-  ]);
+  const [orders] = await Promise.all([getOrdersForCustomer(userId)]);
 
-  const stats = [
-    { v: formatPrice(orders.length), k: "سفارش ثبت‌شده" },
-    { v: formatPrice(favoriteCount), k: "علاقه‌مندی" },
-  ];
+  const stats = [{ v: formatPrice(orders.length), k: "سفارش ثبت‌شده" }];
 
   return (
     <div>

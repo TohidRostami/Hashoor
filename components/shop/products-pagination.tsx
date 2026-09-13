@@ -23,16 +23,21 @@ export function ProductsPagination({
   currentPage,
   totalPages,
   currentParams,
+  categorySlug,
 }: {
   currentPage: number;
   totalPages: number;
   currentParams: URLSearchParams;
+  categorySlug?: string;
 }) {
   if (totalPages <= 1) return null;
 
   const pages = getPageList(currentPage, totalPages);
   const hrefFor = (page: number) =>
     buildProductsHref(currentParams, {
+      // See mobile-product-filters.tsx — category lives in the path
+      // now, so it has to be threaded through explicitly here too.
+      category: categorySlug,
       page: page === 1 ? undefined : String(page),
     });
 

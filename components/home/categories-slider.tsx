@@ -70,7 +70,7 @@ export function CategoriesCarousel({
         <div className="flex gap-4">
           {categories.map((cat) => (
             <div key={cat.slug} className="min-w-0 flex-[0_0_44%] sm:flex-[0_0_30%] lg:flex-[0_0_17%]">
-              <Link href={`/products?category=${cat.slug}`} className="group block">
+              <Link href={`/products/category/${cat.slug}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden rounded-t-[50%] rounded-b-lg border border-border transition-colors group-hover:border-foreground/40">
                   {cat.image ? (
                     <Image

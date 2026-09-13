@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,11 +53,22 @@ export function HeroContent({ heroImages }: { heroImages: string[] }) {
                 ease: "linear",
               },
             }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${heroImages[currentSlide]})`,
-            }}
-          />
+            className="absolute inset-0"
+          >
+            {/* Was a CSS background-image — meant no alt text was even
+                possible, and missed next/image's automatic
+                optimization/priority-loading, on what's typically the
+                single largest above-the-fold element (i.e. the one
+                most likely to be the page's LCP element). */}
+            <Image
+              src={heroImages[currentSlide]}
+              alt={`${siteConfig.site.name} — ${hero.headline}`}
+              fill
+              priority={currentSlide === 0}
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </motion.div>
         </AnimatePresence>
       </div>
 

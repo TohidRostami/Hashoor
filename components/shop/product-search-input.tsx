@@ -8,7 +8,13 @@ import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buildProductsHref } from "@/lib/product-filters";
 
-export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
+export function ProductSearchInput({
+  defaultValue,
+  categorySlug,
+}: {
+  defaultValue: string;
+  categorySlug?: string;
+}) {
   const { push } = useRouteTransition();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(defaultValue);
@@ -24,6 +30,9 @@ export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
       const href = buildProductsHref(
         new URLSearchParams(searchParams.toString()),
         {
+          // See mobile-product-filters.tsx — category lives in the
+          // path now, so it has to be threaded through explicitly.
+          category: categorySlug,
           q: value.trim() || undefined,
           page: undefined,
         },
@@ -39,6 +48,7 @@ export function ProductSearchInput({ defaultValue }: { defaultValue: string }) {
     const href = buildProductsHref(
       new URLSearchParams(searchParams.toString()),
       {
+        category: categorySlug,
         q: undefined,
         page: undefined,
       },

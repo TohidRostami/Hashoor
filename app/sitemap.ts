@@ -21,7 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const [products, categories] = await Promise.all([
-    prisma.product.findMany({ where: { isPublished: true } }) as unknown as Promise<ProductRow[]>,
+    prisma.product.findMany({
+      where: { isPublished: true },
+    }) as unknown as Promise<ProductRow[]>,
     prisma.category.findMany({}) as unknown as Promise<CategoryRow[]>,
   ]);
 
@@ -33,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${base}/products?category=${c.slug}`,
+    url: `${base}/products/category/${c.slug}`,
     changeFrequency: "weekly",
     priority: 0.6,
   }));

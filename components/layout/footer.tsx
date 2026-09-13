@@ -64,9 +64,6 @@ export function SiteFooter() {
             © <span>{toPersianDigits(new Date().getFullYear())}</span>{" "}
             {siteConfig.site.nameLatin}. تمام حقوق محفوظ است.
           </p>
-          <p className="font-nums" dir="ltr">
-            {siteConfig.contact.email}
-          </p>
         </div>
       </div>
     </footer>
