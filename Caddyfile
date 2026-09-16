@@ -1,0 +1,19 @@
+# ⚠️ عمداً فقط http:// — SSL توسط خودِ CDN آروان‌کلاد جلوی سایت مدیریت
+# می‌شه، نه اینجا. توضیح کامل: گاید بخش ۳.۳ و ۴.
+#
+# haashor.com دامنه‌ی اصلیه (canonical) — sitemap، robots.txt، JSON-LD،
+# و NEXT_PUBLIC_SITE_URL همه به همین اشاره می‌کنن.
+# haashor.ir با ریدایرکت دائمی (۳۰۱) به همون آدرس هدایت می‌شه — طبق
+# تصمیمی که برای جلوگیری از محتوای تکراری نزد گوگل گرفتیم.
+
+http://haashor.ir, http://www.haashor.ir {
+    redir https://haashor.com{uri} permanent
+}
+
+http://haashor.com, http://www.haashor.com {
+    reverse_proxy app:3000
+    encode gzip
+    header {
+        -Server
+    }
+}

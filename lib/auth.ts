@@ -11,6 +11,20 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
 
+  // Two live domains (haashor.com is canonical, haashor.ir 301-redirects
+  // to it at the Caddy layer — see the deploy kit's Caddyfile) both
+  // still need to be trusted here, since a browser sitting on
+  // haashor.ir sends that as its Origin header on any request made
+  // *before* the redirect completes (e.g. a form submit racing the
+  // redirect, or a cached page). Without this, requests from whichever
+  // domain isn't `baseURL` fail with "Invalid origin".
+  trustedOrigins: [
+    "https://haashor.com",
+    "https://www.haashor.com",
+    "https://haashor.ir",
+    "https://www.haashor.ir",
+  ],
+
   // Admin toggles which of these two the storefront actually shows —
   // both stay configured here either way. See lib/queries/settings.ts.
   emailAndPassword: {
@@ -54,7 +68,8 @@ export const auth = betterAuth({
         // Better Auth's core user model requires an email; people who
         // sign up via phone get a non-routable placeholder they never
         // see, and can add a real email later from their account page.
-        getTempEmail: (phoneNumber) => `${phoneNumber.replace(/[^\d]/g, "")}@hashor-phone.local`,
+        getTempEmail: (phoneNumber) =>
+          `${phoneNumber.replace(/[^\d]/g, "")}@hashor-phone.local`,
         getTempName: (phoneNumber) => phoneNumber,
       },
     }),
