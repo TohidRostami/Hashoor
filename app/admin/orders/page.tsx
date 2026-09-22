@@ -78,6 +78,7 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="text-center">سفارش</TableHead>
                     <TableHead className="text-center">مشتری</TableHead>
+                    <TableHead className="text-center">نوع سفارش</TableHead>
                     <TableHead className="text-center">وضعیت</TableHead>
                     <TableHead className="text-center">تاریخ سفارش</TableHead>
                     <TableHead className="text-center">مبلغ</TableHead>
@@ -91,7 +92,14 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                         <span className="">{order.orderNumber}</span>
                       </TableCell>
                       <TableCell className="text-center text-muted-foreground">
-                        {order.customer?.name ?? "—"}
+                        {order.customer?.name ??
+                          order.walkInCustomerName ??
+                          "—"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">
+                          {order.source === "IN_PERSON" ? "حضوری" : "آنلاین"}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge className={ORDER_STATUS_TONE[order.status]}>

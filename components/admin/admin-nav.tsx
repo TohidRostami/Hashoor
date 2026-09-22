@@ -12,6 +12,7 @@ import {
   Users,
   Settings,
   ExternalLink,
+  Store,
 } from "lucide-react";
 
 import { Logo, WhiteLogo } from "@/components/shared/logo";
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/admin/products", label: "محصولات", icon: Package },
   { href: "/admin/categories", label: "دسته‌بندی‌ها", icon: FolderTree },
   { href: "/admin/sizes", label: "سایزها", icon: Ruler },
+  { href: "/admin/pos", label: "خرید حضوری", icon: Store },
   { href: "/admin/orders", label: "سفارش‌ها", icon: ShoppingBag },
   { href: "/admin/discounts", label: "کدهای تخفیف", icon: Tag },
   { href: "/admin/users", label: "کاربران", icon: Users },
@@ -38,6 +40,7 @@ const SUBADMIN_ALLOWED_HREFS = new Set([
   "/admin/products",
   "/admin/categories",
   "/admin/sizes",
+  "/admin/pos",
 ]);
 
 export function AdminNav({

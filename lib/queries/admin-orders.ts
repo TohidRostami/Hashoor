@@ -23,11 +23,13 @@ export type AdminOrderRow = {
   id: string;
   orderNumber: string;
   status: string;
+  source: "ONLINE" | "IN_PERSON";
   total: number;
   subtotal: number;
   shippingCost: number;
-  userId: string;
-  addressId: string;
+  userId: string | null;
+  addressId: string | null;
+  walkInCustomerName: string | null;
   createdAt: string | Date;
   customer: UserRow | null;
 };
@@ -74,12 +76,15 @@ export async function getAllOrdersForAdmin(
   // (and therefore totalPages) always matches exactly what's paginated.
   // No `mode: "insensitive"` — that's Postgres-only and breaks on this
   // project's SQLite/Turso database.
+  // Search also matches walkInCustomerName, since an in-person order
+  // has no linked `user` to search by name through.
   const where = {
     ...(search
       ? {
           OR: [
             { orderNumber: { contains: search } },
             { user: { name: { contains: search } } },
+            { walkInCustomerName: { contains: search } },
           ],
         }
       : {}),
@@ -116,11 +121,13 @@ export async function getOrderForAdmin(id: string) {
     id: string;
     orderNumber: string;
     status: string;
+    source: "ONLINE" | "IN_PERSON";
     total: number;
     subtotal: number;
     shippingCost: number;
-    userId: string;
-    addressId: string;
+    userId: string | null;
+    addressId: string | null;
+    walkInCustomerName: string | null;
     createdAt: string | Date;
   } | null;
   if (!order) return null;

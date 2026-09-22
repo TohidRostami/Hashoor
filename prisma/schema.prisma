@@ -17,6 +17,11 @@ enum Role {
   SUBADMIN
 }
 
+enum OrderSource {
+  ONLINE
+  IN_PERSON
+}
+
 model User {
   id                  String   @id @default(cuid())
   name                String
@@ -287,8 +292,13 @@ enum OrderStatus {
 model Order {
   id             String      @id @default(cuid())
   orderNumber    String      @unique
-  userId         String
-  addressId      String
+  // خرید حضوری نه حساب کاربری دارد نه آدرس ارسال — هردو اختیاری شدند.
+  userId         String?
+  addressId      String?
+  source         OrderSource @default(ONLINE)
+  // فقط وقتی پر می‌شود که userId خالی باشد — نام مشتری حضوری که حساب
+  // کاربری ندارد، فقط برای همین فاکتور، بدون ساخت اکانت.
+  walkInCustomerName String?
   status         OrderStatus @default(PENDING_PAYMENT)
   subtotal       Int
   discountAmount Int         @default(0)
@@ -300,13 +310,14 @@ model Order {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  address      Address       @relation(fields: [addressId], references: [id], onDelete: Restrict)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  address      Address?      @relation(fields: [addressId], references: [id], onDelete: Restrict)
   discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: SetNull)
   items        OrderItem[]
 
   @@index([userId])
   @@index([status, createdAt])
+  @@index([source])
   @@map("order")
 }
 
