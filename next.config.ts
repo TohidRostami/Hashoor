@@ -42,8 +42,8 @@ const nextConfig: NextConfig = {
       // ArvanCloud Object Storage — see README → "اتصال Object Storage
       // آروان‌کلاد". Covers both regional endpoints and any custom
       // ARVAN_PUBLIC_URL_BASE domain you configure.
-      { protocol: "https", hostname: "*.arvanstorage.ir" },
-      { protocol: "https", hostname: "*.arvanstorage.com" },
+      { protocol: "https", hostname: "**.arvanstorage.ir" },
+      { protocol: "https", hostname: "**.arvanstorage.com" },
     ],
   },
   experimental: {
