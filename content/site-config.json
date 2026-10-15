@@ -64,7 +64,6 @@
         "title": "راهنما",
         "links": [
           { "label": "پیگیری سفارش", "href": "/account/orders" },
-          { "label": "راهنمای سایز", "href": "/size-guide" },
           { "label": "شرایط مرجوعی", "href": "/returns" },
           { "label": "سوالات متداول", "href": "/faq" }
         ]

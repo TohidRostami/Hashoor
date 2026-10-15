@@ -5,6 +5,7 @@ import { Logo, WhiteLogo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/content";
 import { toPersianDigits } from "@/lib/format";
+import { EnamadSeal } from "../shared/enamad-seal";
 
 const trustItems = [
   { icon: Truck, label: "ارسال به سراسر ایران" },
@@ -35,6 +36,7 @@ export function SiteFooter() {
               >
                 <FaTelegram size={30} />
               </Link>
+              <EnamadSeal />
             </div>
           </div>
 
