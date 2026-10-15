@@ -1,7 +1,7 @@
 "use client";
 import { FaWhatsapp } from "react-icons/fa";
 
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
+const WHATSAPP_NUMBER = "989113525318";
 const DEFAULT_MESSAGE = "سلام، سوالی درباره‌ی محصولات هاشور دارم.";
 
 const GLASS =
